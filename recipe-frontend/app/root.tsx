@@ -10,29 +10,45 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 
+import {
+	SidebarProvider, 
+	SidebarInset,
+} from "./components/ui/sidebar";
+import { LeftSidebar, AppSidebar } from "./components/app-sidebar"
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Recipe Finder" },
+  ];
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
-  );
+	return ( <html lang="en">
+		<head>
+			<meta charSet="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<Meta />
+			<Links />
+		</head>
+		<body>
+			{children}
+			<ScrollRestoration />
+			<Scripts />
+		</body>
+	</html>);
 }
 
 
 export default function App() {
-	return (<div className="flex w-screen justify-center p-4">
-		<Outlet />
-	</div>);
+	return <SidebarProvider defaultOpen={true}>
+		<SidebarInset>
+			<div className="flex w-screen justify-center pt-10">
+				<Outlet />
+			</div>
+		</SidebarInset>
+		<LeftSidebar/>
+		<AppSidebar/>
+	</SidebarProvider>
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

@@ -1,11 +1,22 @@
-import type { Route } from "./+types/home";
+import { Search } from "../components/ui/search"
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Recipe Finder" },
-  ];
+function Post() {
+	return <div className="w-[300px] h-[300px] bg-slate-400"></div>
 }
 
 export default function Home() {
-	return <div className="">Recipe Finder Home page</div>;
+	return (<div className="flex flex-col items-center gap-4">
+		<h1>Recipe Finder</h1>
+		<h2 className="-mt-5 text-gray-600"><i>Create and share recipes</i></h2>
+		<Search className="rounded-full" placeholder="lemons, sugar"/>
+
+		<div className="w-fit grid grid-cols-2 gap-1 mt-10">
+			<Post/>
+			<Post/>
+			<Post/>
+			<Post/>
+			<Post/>
+			<Post/>
+		</div>
+	</div>);
 }
