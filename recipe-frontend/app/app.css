@@ -16,6 +16,10 @@ h2 {
 	font-size: 1.5rem;
 }
 
+h3 {
+	font-size: 1.2rem;
+}
+
 @theme inline {
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);

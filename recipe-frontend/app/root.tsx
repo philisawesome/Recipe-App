@@ -13,6 +13,7 @@ import "./app.css";
 import {
 	SidebarProvider, 
 	SidebarInset,
+	SidebarTrigger,
 } from "./components/ui/sidebar";
 import { LeftSidebar, AppSidebar } from "./components/app-sidebar"
 
@@ -42,11 +43,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
 	return <SidebarProvider defaultOpen={true}>
 		<SidebarInset>
-			<div className="flex w-screen justify-center pt-10">
+			<div className="flex w-screen justify-center pt-10 pb-10">
 				<Outlet />
 			</div>
 		</SidebarInset>
-		<LeftSidebar/>
 		<AppSidebar/>
 	</SidebarProvider>
 }

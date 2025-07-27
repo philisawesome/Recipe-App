@@ -1,7 +1,9 @@
+import { Link } from "react-router"
 import {
   Sidebar,
   SidebarContent,
   SidebarTrigger,
+  SidebarRail,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
@@ -12,10 +14,8 @@ import {
   SidebarHeader,
 } from "./ui/sidebar"
 import {
-	Avatar,
-	AvatarImage,
-	AvatarFallback,
-} from "./ui/avatar"
+	AvatarCard
+} from "./avatar-card"
 import {
 	Popover,
 	PopoverTrigger,
@@ -25,41 +25,59 @@ import {
 	Button
 } from "./ui/button"
 
-const MenuLinks = ["Home", "Search", "Trending Recipes"]
-const AccountMenuLinks = ["My Profile", "Settings", "Contact"]
+interface MenuLink {
+	name: string, link: string
+}
+
+const MenuLinks: MenuLink[] = [
+	{
+		name: "Home",
+		link: "/", 
+	},
+	{
+		name: "Search",
+		link: "/search", 
+	},
+]
+
+const AccountMenuLinks: MenuLink[] = [
+	{
+		name: "My Profile",
+		link: "/user/bill",
+	},
+	{ 
+		name: "My Account",
+		link: "/account",
+	},
+	{
+		name: "Contact",
+		link: "/contact",
+	},
+]
 
 export function AppSidebar() {
-	return (<Sidebar variant="inset" side="right" className="fixed">
+	return (<Sidebar variant="inset" side="right">
 		<SidebarHeader>
 			<Popover>
 				<PopoverTrigger className="">
-					<div className="flex items-center justify-start gap-2">
-						<Avatar className="m-2">
-							<AvatarImage src="https://github.com/shadcn.png" />
-							<AvatarFallback>CN</AvatarFallback>
-						</Avatar>
-						<div className="text-left">
-							<p className="-mb-2">@linecook</p>
-							<p><small>Link Cook</small></p>
-						</div>
-					</div>
+					<AvatarCard/>
 				</PopoverTrigger>
 				<PopoverContent>
 					<Button variant="destructive" className="w-full">Logout</Button>
 				</PopoverContent>
 			</Popover>
 		</SidebarHeader>
-		<SidebarContent>
-			<Button>New Post</Button>
+		<SidebarContent className="p-2">
+			<Button asChild><Link to="/new-post">New Post</Link></Button>
 			<SidebarGroup>
 				<SidebarGroupLabel>Community</SidebarGroupLabel>
 				<SidebarMenu>
-					{MenuLinks.map((s: string, i: number) => {
-						return (<SidebarMenuItem>
+					{MenuLinks.map((s: MenuLink, i: number) => {
+						return (<SidebarMenuItem key={i}>
 							<SidebarMenuButton asChild>
-								<a>
-									<span>{s}</span>
-								</a>
+								<Link to={s.link}>
+									<span>{s.name}</span>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>)
 					})}
@@ -68,18 +86,19 @@ export function AppSidebar() {
 			<SidebarGroup>
 				<SidebarGroupLabel>Application</SidebarGroupLabel>
 				<SidebarMenu>
-					{AccountMenuLinks.map((s: string, i: number) => {
-						return (<SidebarMenuItem>
+					{AccountMenuLinks.map((s: MenuLink, i: number) => {
+						return (<SidebarMenuItem key={i}>
 							<SidebarMenuButton asChild>
-								<a>
-									<span>{s}</span>
-								</a>
+								<Link to={s.link}>
+									<span>{s.name}</span>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>)
 					})}
 				</SidebarMenu>
 			</SidebarGroup>
 		</SidebarContent>
+		<SidebarRail/>
 	</Sidebar>)
 }
 

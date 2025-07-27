@@ -1,8 +1,6 @@
 import { Search } from "../components/ui/search"
 
-function Post() {
-	return <div className="w-[300px] h-[300px] bg-slate-400"></div>
-}
+import Post from "../components/post"
 
 export default function Home() {
 	return (<div className="flex flex-col items-center gap-4">

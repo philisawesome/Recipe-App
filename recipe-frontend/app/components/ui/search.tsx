@@ -14,9 +14,13 @@ import { FilterCard } from "./filter-card"
 function Search({ className, type, ...props }: React.ComponentProps<"input">) {
 	const [filterState, setFilterState] = React.useState(DefaultFilter())
 
-	return (
-		<div className="flex gap-2">
-		<img src="search-icon.svg" className="w-5"/>
+	return <div className="flex gap-2">
+		<img src="/search-icon.svg" className="w-5"/>
+		<Input
+			type={type}
+			className={className}
+			{...props}
+		/>
 		<Popover>
 			<PopoverContent>
 				<FilterCard 
@@ -24,16 +28,11 @@ function Search({ className, type, ...props }: React.ComponentProps<"input">) {
 					setFilterState={setFilterState}
 				/>
 			</PopoverContent>
-			<Input
-				type={type}
-				className={className}
-				{...props}
-			/>
 			<PopoverTrigger>
-				<img src="filters.svg" className="w-7"/>
+				<img src="/filters.svg" className="w-7"/>
 			</PopoverTrigger>
 		</Popover>
-	</div>)
+	</div>
 }
 
 export { Search }
