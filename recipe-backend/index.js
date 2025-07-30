@@ -1,7 +1,8 @@
 const express = require('express');
-const mongoose= require ('mongoose');
+const mongoose = require('mongoose');
 const cors= require('cors');
 const config = require('./config');
+const authRoutes= require('./routes/auth');
 
 const app= express();
 
@@ -25,26 +26,13 @@ mongoose.connect(config.mongoURI)
   .catch((err)=> console.error("MongoDB connection error:",err));
 
 
-
-
-
-
-
 //Routes
 app.get('/', (req,res)=>{
   res.send('Welcome to Recipe Social API');
 });
 
 //auth
-app.post('/api/register', (req,res)=>{
-
-
-
-});
-app.post('/api/login', (req,res)=>{
-
-
-});
+app.use('/api/auth',authRoutes);
 
 app.get('/api/profile', (req,res)=>{
 
