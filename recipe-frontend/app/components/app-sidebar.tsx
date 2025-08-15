@@ -1,4 +1,4 @@
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import {
   Sidebar,
   SidebarContent,
@@ -13,17 +13,14 @@ import {
   SidebarMenuButton,
   SidebarHeader,
 } from "./ui/sidebar"
-import {
-	AvatarCard
-} from "./avatar-card"
+import { AvatarCard } from "./avatar-card"
 import {
 	Popover,
 	PopoverTrigger,
 	PopoverContent,
 } from "./ui/popover"
-import {
-	Button
-} from "./ui/button"
+import { Button } from "./ui/button"
+import { useAuth } from "../hooks/use-auth"
 
 interface MenuLink {
 	name: string, link: string
@@ -56,6 +53,9 @@ const AccountMenuLinks: MenuLink[] = [
 ]
 
 export function AppSidebar() {
+	const auth = useAuth()
+	const navigate = useNavigate()
+
 	return (<Sidebar variant="inset" side="right">
 		<SidebarHeader>
 			<Popover>
@@ -63,7 +63,20 @@ export function AppSidebar() {
 					<AvatarCard/>
 				</PopoverTrigger>
 				<PopoverContent>
-					<Button variant="destructive" className="w-full">Logout</Button>
+					{auth.loggedIn && 
+					<Button 
+						variant="destructive"
+						className="w-full"
+						onClick={() => {
+							auth.logout()
+						}}>
+						Logout
+					</Button>}
+					{!auth.loggedIn && <Button 
+						className="w-full"
+						onClick={() => {navigate("/login")}}>
+						Login
+					</Button>}
 				</PopoverContent>
 			</Popover>
 		</SidebarHeader>
