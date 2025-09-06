@@ -17,6 +17,8 @@ import {
 } from "./components/ui/sidebar";
 import { LeftSidebar, AppSidebar } from "./components/app-sidebar"
 
+import { AuthProvider } from "./hooks/use-auth"
+
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Recipe Finder" },
@@ -41,14 +43,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 
 export default function App() {
-	return <SidebarProvider defaultOpen={true}>
-		<SidebarInset>
-			<div className="flex w-screen justify-center pt-10 pb-10">
-				<Outlet />
-			</div>
-		</SidebarInset>
-		<AppSidebar/>
-	</SidebarProvider>
+	return <AuthProvider>
+		<SidebarProvider defaultOpen={true}>
+			<SidebarInset>
+				<div className="flex w-screen justify-center pt-10 pb-10">
+					<Outlet />
+				</div>
+			</SidebarInset>
+			<AppSidebar/>
+		</SidebarProvider>
+	</AuthProvider>
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

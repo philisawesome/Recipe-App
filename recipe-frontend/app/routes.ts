@@ -13,4 +13,6 @@ export default [
 	route("settings", "./routes/settings.tsx"),
 	route("contact", "./routes/contact.tsx"),
 	route("new-post", "./routes/new-post.tsx"),
+	route("login", "./routes/login.tsx"),
+	route("signup", "./routes/signup.tsx"),
 ] satisfies RouteConfig;
