@@ -1,4 +1,4 @@
-const require = ('mongoose');
+const mongoose = require("mongoose");
 const Users = require("../models/Users");
 const User= require("../models/Users");
 
@@ -27,7 +27,7 @@ async function getTheirProfile(req, res){
         .populate('followers following', 'username avatar name')
 
         if(!user){
-            return res.status(404).json({error: "requested user is not found"};)
+            return res.status(404).json({error: "requested user is not found"});
         }
 
         res.json({user});
@@ -152,6 +152,33 @@ async function getFollowers(req,res){
         }
 
         return res.json({
+            user: user.followers,
+            result:user.followers.length
+
+        });
+    }catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server Error' });
+  }
+
+};
+async function getFollowing(req,res){
+    try{
+        const {skip = 0, limit = 10} = req.query;
+        const user = await User.findById(req.params.id)
+            .select('followeing')
+            .populate({
+                path: 'following',
+                select:'username avatar name',
+                options: {skip:Number(skip), limit: Number(limit)}
+            })
+            .lean();
+
+        if (!user){
+            return res.status(404).json({error: "User not found"});
+        }
+
+        return res.json({
             user: user.following,
             result:user.following.length
 
@@ -163,10 +190,18 @@ async function getFollowers(req,res){
 
 };
 
-async function suggestedUsers(req,res){
 
 
 
-};
-module.exports = { getMyProfile };
+
+module.exports = { 
+    getMyProfile,
+    getTheirProfile,
+    followUser,
+    unfollowUser,
+    getFollowers,
+    getFollowing
+   
+
+ };
 

@@ -24,6 +24,8 @@ mongoose.connect(config.mongoURI)
   app.listen(config.port,()=>{
   console.log(`RECIPE APP on  http://localhost:${config.port}`);
 
+
+
 })
   })
   .catch((err)=> console.error("MongoDB connection error:",err));
