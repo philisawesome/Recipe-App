@@ -2,6 +2,8 @@ const Users = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const { createAccessToken, createRefreshToken } = require("../utils/jwtHelpers");
+
 
 async function register(req, res){
     try{
@@ -59,7 +61,7 @@ async function register(req, res){
         const refresh_token= createRefreshToken({ id: newUser._id});
 
     //adding refresh cookie for security 
-        res.cookie("refreshtoken", refresh_token,{
+        res.cookie("refresh_token", refresh_token,{
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
@@ -85,19 +87,21 @@ async function register(req, res){
     } catch(err){
         if (err.code === 11000) {
             const k = Object.keys(err.keyPattern || {})[0] || "field";
-            return res.status(400).json({ msg: `This ${k} is already taken.` });
+            return res.status(400).json({ error: `This ${k} is already taken.` });
   }
     console.error(err);
-    return res.status(500).json({ msg: "Server error." });
+    return res.status(500).json({ error: "Server error." });
     }
 
 };
 
 async function login (req, res){
     try{
+        //grabs username n password
         const {username: rawUsername = "", password = ""}= req.body ?? {};
         const normalizedUsername = rawUsername.toLowerCase().trim().replace(/\s+/g, "");
 
+        //querys database
         const user = await Users.findOne({
             username: normalizedUsername
        }).select("+password");
@@ -107,7 +111,7 @@ async function login (req, res){
         });
        }
 
-
+       //matching password vs hashpassword
        const isMatch = await bcrypt.compare(password, user.password)
        if(!isMatch){
             return res.status(401).json({
@@ -115,10 +119,11 @@ async function login (req, res){
             });
     
        }
+       //creates tokens
         const access_token= createAccessToken({ id: user._id});
         const refresh_token= createRefreshToken({ id: user._id});
 
-        res.cookie("refreshtoken", refresh_token,{
+        res.cookie("refresh_token", refresh_token,{
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
@@ -153,7 +158,7 @@ async function login (req, res){
 }
 async function logout(req, res){
     try{
-        res.clearCookie("refreshtoken",{
+        res.clearCookie("refresh_token",{
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
@@ -172,12 +177,58 @@ async function logout(req, res){
 
 }
 
+async function generateAccessToken(req, res){
+    try{
+        //grabs cookie from browser
+        const rf_token= req.cookies.refresh_token;
+        if (!rf_token){
+            return res.status(401).json({error:"Please login again."});
+        
+        }
+        //verfies token with the secret
+        jwt.verify(rf_token,process.env.REFRESH_TOKEN_SECRET,async(err,decoded)=>{
+
+            //if fails
+            if(err){
+                const msg = err.name === "TokenExpiredError"
+                    ? "Refresh token expired. Please login again."
+                    : "Invalid refresh token.";
+                return res.status(401).json({ error: msg });
+
+            }
+
+            //if passes
+            try {
+                const user = await Users.findById(decoded.id).select("-password");
+                if (!user) return res.status(404).json({ error: "User does not exist." });
+
+                const access_token = createAccessToken({ id: decoded.id });
+                return res.status(200).json({ access_token });
+            }catch (e) {
+                console.error(e);
+                return res.status(500).json({ error: "Server error." });
+            }
+        });
+    }catch(err){
+        console.error(err);
+        return res.status(500).json({error:"Server error."});
+    }
+
+}
+        
+
+
+    
+    
+
+
 
 
 
 module.exports= {
     register,
     login,
-    logout
+    logout,
+    generateAccessToken
 
 };

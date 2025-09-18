@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors= require('cors');
+const cookieParser = require('cookie-parser');
 const config = require('./config');
 const authRoutes= require('./routes/auth');
 
@@ -12,7 +13,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-
+app.use(cookieParser()); 
 
 
 
