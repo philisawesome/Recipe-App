@@ -3,7 +3,7 @@ const authCtrl = require('../controllers/authCtrl');
 const auth = require('../middleware/auth');
 
 //registration route 
-router.post('register',authCtrl.register);
+router.post('/register',authCtrl.register);
 
 router.post('/login',authCtrl.login)
 
