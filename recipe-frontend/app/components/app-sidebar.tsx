@@ -9,6 +9,8 @@ import {
   SidebarGroupLabel,
   SidebarGroupAction,
   SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuSkeleton,
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarHeader,
@@ -23,7 +25,9 @@ import { Button } from "./ui/button"
 import { useAuth } from "../hooks/use-auth"
 
 interface MenuLink {
-	name: string, link: string
+	name: string
+	link: string
+	auth?: true
 }
 
 const MenuLinks: MenuLink[] = [
@@ -35,9 +39,15 @@ const MenuLinks: MenuLink[] = [
 		name: "Search",
 		link: "/search", 
 	},
+	{
+		name: "My Profile",
+		link: "/user/bill",
+		auth: true,
+	},
 ]
 
 const AccountMenuLinks: MenuLink[] = [
+	/*
 	{
 		name: "My Profile",
 		link: "/user/bill",
@@ -46,56 +56,55 @@ const AccountMenuLinks: MenuLink[] = [
 		name: "My Account",
 		link: "/account",
 	},
-	{
-		name: "Contact",
-		link: "/contact",
-	},
+	*/
 ]
 
 export function AppSidebar() {
 	const auth = useAuth()
 	const navigate = useNavigate()
 
-	return (<Sidebar variant="inset" side="right">
+	const hideClass = "group-data-[collapsible=icon]:hidden"
+
+	const Logo = () => {
+		return <Link to="/"><div className="flex pt-2 pl-2 group-data-[collapsible=icon]:p-0">
+				<div
+					className={"text-center title-font text-[2rem] "+hideClass}
+				>Stovetop</div>
+				<img className="w-[2rem]" src="/logo.svg"/>
+			</div>
+		</Link>
+	}
+
+
+	return (<Sidebar 
+			collapsible="icon"
+			className="flex flex-col justify-between" side="right">
 		<SidebarHeader>
-			<Popover>
-				<PopoverTrigger className="">
-					<AvatarCard/>
-				</PopoverTrigger>
-				<PopoverContent>
-					{auth.loggedIn && 
-					<Button 
-						variant="destructive"
-						className="w-full"
-						onClick={() => {
-							auth.logout()
-						}}>
-						Logout
-					</Button>}
-					{!auth.loggedIn && <Button 
-						className="w-full"
-						onClick={() => {navigate("/login")}}>
-						Login
-					</Button>}
-				</PopoverContent>
-			</Popover>
+			<Logo/>	
 		</SidebarHeader>
-		<SidebarContent className="p-2">
-			<Button asChild><Link to="/new-post">New Post</Link></Button>
-			<SidebarGroup>
-				<SidebarGroupLabel>Community</SidebarGroupLabel>
+		<SidebarContent className={"h-full "+hideClass}>
+			<SidebarGroup className="">
 				<SidebarMenu>
-					{MenuLinks.map((s: MenuLink, i: number) => {
-						return (<SidebarMenuItem key={i}>
-							<SidebarMenuButton asChild>
-								<Link to={s.link}>
-									<span>{s.name}</span>
-								</Link>
-							</SidebarMenuButton>
-						</SidebarMenuItem>)
-					})}
+					<SidebarMenuItem>
+						<SidebarMenuButton asChild>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+
+					{MenuLinks
+						.filter((s: MenuLink) => auth.loggedIn || !s.auth)
+						.map((s: MenuLink, i: number) => {
+							return (<SidebarMenuItem key={i}>
+								<SidebarMenuButton asChild>
+									<Link to={s.link}>
+										<span>{s.name}</span>
+									</Link>
+								</SidebarMenuButton>
+							</SidebarMenuItem>)
+						})
+					}
 				</SidebarMenu>
 			</SidebarGroup>
+			{/*
 			<SidebarGroup>
 				<SidebarGroupLabel>Application</SidebarGroupLabel>
 				<SidebarMenu>
@@ -110,6 +119,46 @@ export function AppSidebar() {
 					})}
 				</SidebarMenu>
 			</SidebarGroup>
+			*/}
+			<SidebarFooter className="w-full absolute bottom-0">
+			<div className="w-full gap-3 p-4 flex flex-col">
+				<Popover>
+					<PopoverTrigger className="">
+						{auth.loggedIn && <AvatarCard/>}
+					</PopoverTrigger>
+					<PopoverContent>
+						{auth.loggedIn && 
+						<Button 
+							variant="destructive"
+							className="w-full"
+							onClick={() => {
+								auth.logout()
+							}}>
+							Logout
+						</Button>}
+					</PopoverContent>
+				</Popover>
+				{auth.loggedIn &&	
+				<Button asChild 
+					className="bg-(--color-4)">
+					<Link to="/new-post">
+						New Post
+					</Link>
+				</Button>
+				}
+				{!auth.loggedIn && <div className="flex gap-2 self-center">
+					<Button 
+						onClick={() => {navigate("/login")}}>
+						Login
+					</Button>
+					<Button 
+						variant="link"
+						onClick={() => {navigate("/signup")}}>
+						Signup
+					</Button>
+				</div>}
+			</div>
+			</SidebarFooter>
 		</SidebarContent>
 		<SidebarRail/>
 	</Sidebar>)

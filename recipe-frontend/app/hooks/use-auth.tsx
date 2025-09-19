@@ -1,15 +1,17 @@
 import { useState, useEffect, createContext, useContext } from "react"
+import { type User } from "../lib/utils"
 
 
 interface authcontext {
-	loggedIn: boolean;
-	login: (t?: string) => void;
-	logout: () => void;
+	loggedIn: boolean
+	user?: User
+	login: (t?: string, user?: User) => void
+	logout: () => void
 }
 
-const defaultContext = {
+const defaultContext: authcontext = {
 	loggedIn: false,
-	login: (t?: string) => {},
+	login: () => {},
 	logout: () => {},
 }
 
@@ -18,28 +20,35 @@ const AuthContext = createContext<authcontext>(defaultContext)
 
 export function AuthProvider(props: any) {
 	const [loggedIn, setLoggedIn] = useState(false) 
+	const [user, setUser] = useState<User>() 
 
 	useEffect(() => {
 		// On render, check if auth token is present and not expired
 		// (Maybe use cookies storing JWTs later on)
 
-		const token = localStorage.getItem('token')
-		if (token) setLoggedIn(true)
+		login()
 	}, [])
 
 	// The login/out functions can be used by login/out buttons.
 	// Updates the user's tokens on the client side and updates
 	// the loggedin status for the current page
 
-	const login = (token?: string) => {
+	const login = (token?: string, user?: User) => {
 		// If no token is passed in, check
 		// if we already have a valid token
-		//
-		// NOT SURE if we need the ability to do this
-		if (!token) {
+		// in our cookies
+		if (!token || !user) {
 			const t = localStorage.getItem('token')
 			if (!t) {
-				console.log('No token or invalid token')
+				return
+			}
+			const u = localStorage.getItem('user')
+			if (!u) {
+				return
+			}
+			try {
+				setUser(JSON.parse(u))
+			} catch {
 				return
 			}
 			setLoggedIn(true)	
@@ -47,7 +56,9 @@ export function AuthProvider(props: any) {
 		// Ex: logging in for the first time
 		} else {
 			localStorage.setItem('token', token)
-			setLoggedIn(true)	
+			localStorage.setItem('user', JSON.stringify(user))
+			setLoggedIn(true)
+			setUser(user)
 		}
 	}
 
@@ -60,6 +71,7 @@ export function AuthProvider(props: any) {
 
 	const contextValue = {
 		loggedIn: loggedIn,
+		user: user,
 		login: login,
 		logout: logout,
 	}
@@ -74,5 +86,4 @@ export function AuthProvider(props: any) {
 export function useAuth() {
 	const context = useContext(AuthContext)
 	return context
-
 }
