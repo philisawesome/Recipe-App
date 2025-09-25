@@ -4,7 +4,7 @@ const cors= require('cors');
 const cookieParser = require('cookie-parser');
 const config = require('./config');
 const authRoutes= require('./routes/auth');
-
+const profRoutes= require('./routes/user');
 const app= express();
 
 //middleware stuff??? 
@@ -41,8 +41,7 @@ app.get('/', (req,res)=>{
 app.use('/api/auth',authRoutes);
 
 //profile 
-app.get('/api/profile', (req,res)=>{
+app.get('/api/profile',profRoutes);
 
 
-});
 
