@@ -15,7 +15,7 @@ import {
 	SidebarInset,
 	SidebarTrigger,
 } from "./components/ui/sidebar";
-import { LeftSidebar, AppSidebar } from "./components/app-sidebar"
+import { MobileSidebar, AppSidebar } from "./components/app-sidebar"
 
 import { AuthProvider } from "./hooks/use-auth"
 
@@ -30,6 +30,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 		<head>
 			<meta charSet="utf-8" />
 			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com"/>
+		<link href="https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Marck+Script&display=swap" rel="stylesheet"/>
 			<Meta />
 			<Links />
 		</head>
@@ -46,11 +49,12 @@ export default function App() {
 	return <AuthProvider>
 		<SidebarProvider defaultOpen={true}>
 			<SidebarInset>
-				<div className="flex w-screen justify-center pt-10 pb-10">
+				<div className="flex w-[100vw] justify-center pt-10 pb-10">
 					<Outlet />
 				</div>
+				<AppSidebar/>
+				<MobileSidebar/>
 			</SidebarInset>
-			<AppSidebar/>
 		</SidebarProvider>
 	</AuthProvider>
 }
@@ -72,11 +76,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
+    <main className="pt-16 container mx-auto">
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
+        <pre className="w-full overflow-x-auto">
           <code>{stack}</code>
         </pre>
       )}

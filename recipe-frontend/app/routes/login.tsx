@@ -68,8 +68,9 @@ function LoginForm() {
 		}
 	}
 
-	return (<div className="flex flex-col min-h-[50vh] h-full w-full items-center justify-center">
-		<Card className="w-xs">
+	return (<div className="flex flex-col 
+		min-h-[50vh] h-full w-full items-center justify-center">
+		<Card className="w-[90%] md:w-xs">
 			<CardHeader>
 				<CardTitle className="text-2xl">Login</CardTitle>
 				<CardDescription>
@@ -137,7 +138,7 @@ function LoginForm() {
 }
 
 export default function Login() {
-	return <div className="flex flex-col items-center gap-3">
+	return <div className="flex flex-col items-center gap-3 w-full">
 		<LoginForm/>
 	</div>;
 }

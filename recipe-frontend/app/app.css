@@ -8,6 +8,27 @@ html {
 	overflow-x: hidden;
 }
 
+body {
+	color: var(--color-text);
+}
+
+.article-font {
+	font-family: "Goudy Bookletter 1911", serif;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.title-font {
+	font-family: "Marck Script", cursive;
+	font-weight: 900;
+	font-style: normal;
+}
+
+.title {
+	color: var(--color-title);
+	font-size: 3.5rem;
+}
+
 h1 {
 	font-size: 2rem;
 }
@@ -19,6 +40,14 @@ h2 {
 h3 {
 	font-size: 1.2rem;
 }
+
+/*
+ *EB5E55
+3A3335
+D81E5B
+FDF0D5
+C6D8D3
+ */
 
 @theme inline {
 	--radius-sm: calc(var(--radius) - 4px);
@@ -60,8 +89,20 @@ h3 {
 
 :root {
 	--radius: 0.625rem;
-	--background: oklch(1 0 0);
+	--background: #FFFFFF;
 	--foreground: oklch(0.145 0 0);
+
+	--color-title: #D81E5B;
+	--color-text: #3A3335;
+	--color-1: #EB5E55;
+	--color-light-1: #FDF0D5;
+	--color-light-2: #FCF6B1;
+	--color-2: #2D1E2F;
+	--color-3: #BF3100;
+	--color-4: #D36135;
+
+	--button-background: var(--color-1);
+
 	--card: oklch(1 0 0);
 	--card-foreground: oklch(0.145 0 0);
 	--popover: oklch(1 0 0);
