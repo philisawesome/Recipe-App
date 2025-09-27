@@ -1,11 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors= require('cors');
 const cookieParser = require('cookie-parser');
 const config = require('./config');
-const authRoutes= require('./routes/auth');
-const profRoutes= require('./routes/user');
+const authRoutes= require('./routes/authRoutes');
+const profRoutes= require('./routes/userRoutes');
 const app= express();
+
+
 
 //middleware stuff??? 
 app.use(cors({
@@ -41,7 +44,7 @@ app.get('/', (req,res)=>{
 app.use('/api/auth',authRoutes);
 
 //profile 
-app.get('/api/profile',profRoutes);
+app.use('/api',profRoutes);
 
 
 

@@ -184,7 +184,7 @@ async function getFollowers(req, res) {
         })
         .lean(),
       User.aggregate([
-        { $match: { _id: new mongoose.Types.ObjectId(id) } },
+        { $match: { _id: id } },
         { $project: { _id: 0, total: { $size: "$followers" } } }
       ])
     ]);
@@ -232,7 +232,7 @@ async function getFollowing(req, res) {
         })
         .lean(),
       User.aggregate([
-        { $match: { _id: new mongoose.Types.ObjectId(id) } },
+        { $match: { _id: id } },
         { $project: { _id: 0, total: { $size: "$following" } } }
       ])
     ]);
@@ -257,7 +257,6 @@ async function getFollowing(req, res) {
   }
 }
 
-
 module.exports = {
   searchUser,
   getMyProfile,
@@ -265,5 +264,6 @@ module.exports = {
   followUser,
   unfollowUser,
   getFollowers,
-  getFollowing
+  getFollowing,
 };
+
