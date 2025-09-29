@@ -5,9 +5,12 @@ import { Toggle } from "../components/ui/toggle"
 import Post from "../components/post"
 import { useAuth } from "../hooks/use-auth"
 import { useState } from "react"
+import { useNavigate } from "react-router"
 
 export default function User() {
 	const auth = useAuth()
+	const navigate = useNavigate()
+
 	const [followed, setFollowed] = useState(false)
 	return <div className="w-screen text-wrap flex flex-col items-center gap-3">
 		<div className="w-screen md:w-xl flex flex-col gap-3 p-5">
@@ -16,6 +19,14 @@ export default function User() {
 				<Toggle onPressedChange={(b) => {setFollowed(b)} }>
 					{followed ? 'Unfollow' : 'Follow'}
 				</Toggle>
+				<Button variant="outline" onClick={() => {
+					async function goHome() {
+						await navigate("/")
+					}
+					goHome().then(()=>{auth.logout()})
+				}}>
+					Logout
+				</Button>
 			</div>
 
 			<p className="text-sm text-gray-500">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.</p>

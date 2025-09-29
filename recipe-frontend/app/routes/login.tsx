@@ -1,5 +1,6 @@
 "use client"
 
+import axios from "axios"
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -17,6 +18,7 @@ import {
 	FormMessage,
 } from "../components/ui/form"
 import { Input } from "../components/ui/input"
+import { type User } from "../lib/utils"
 import { useAuth } from "../hooks/use-auth"
  
 const formSchema = z.object({
@@ -37,35 +39,22 @@ function LoginForm() {
 		},
   	})
 
-	// Mocks sending username/password to our authentication server
-	// which may or may not send us a token
-	async function mockAuth(values: z.infer<typeof formSchema>) {
-		interface mockUsers {
-			[key: string] : string;
-		}
-		const users: mockUsers = { 
-			'user': '1234', 
-			'cook': 'pass'
-		}
-		const password = users[values.username]
-		if (password == undefined) {
-			return false
-		}
-		if (password == values.password) {
-			return "token"
-		}
-		return "" 
-	}
-
-
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		const token = await mockAuth(values)
-		if (token) {
-			auth.login(token)
-			navigate('/account')
-		} else {
+		axios.post('http://localhost:4000/api/auth/login', 
+			{
+				username: values.username,
+				password: values.password,
+			}
+		).then((res) => {
+			const user: User = {
+				username: res.data.user.username,
+				name: res.data.user.name,
+			}
+			auth.login(res.data.access_token, user)
+			navigate('/user/' + user.username)
+		}).catch((e) => {
 			setLoginFailed(true)
-		}
+		})
 	}
 
 	return (<div className="flex flex-col 

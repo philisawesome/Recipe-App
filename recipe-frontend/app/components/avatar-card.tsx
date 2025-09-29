@@ -19,7 +19,7 @@ export function AvatarCard(props: {
 	let {className, user} = props
 	user = user || MockUser
 
-	return <Link to="/user/bill"><div className={"flex items-center justify-start gap-2 " + className}>
+	return <Link to={"/user/" + user.username}><div className={"flex items-center justify-start gap-2 " + className}>
 		<Avatar className="m-2">
 			<AvatarImage src="" />
 			<AvatarFallback>CN</AvatarFallback>

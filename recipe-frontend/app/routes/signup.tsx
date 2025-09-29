@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from "axios"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { type User } from "../lib/utils"
@@ -42,14 +42,23 @@ import {
 } from "../components/ui/alert-dialog"
 
 const formSchema = z.object({
-	username: z.string().min(0, {
-		message: "Username must be at least 0 characters.",
+	username: z.string().regex(/^[a-z0-9_]{3,20}$/, {
+		message: "Username must be 3-20 chars (a-z, 0-9, _ only).",
 	}),
 	email: z.email().nonempty(),
-	//firstname: z.string(),
-	//lastname: z.string(),
+	name: z.string().nonempty({
+		message: "Must include name"}
+	).regex(/^[a-z]{1,12}$/, {
+		message: "Name must be 1-12 chars (a-z only).",
+	}),
 	password: z.string().min(8, {
 		message: "Password must be at least 8 characters.",
+	}).regex(/[A-Z[!@#$%^&*()\-_=+[{\]]/, {
+		message: "Must contain 1 uppercase letter and 1 special character",
+	}).regex(/[A-Z]/, {
+		message: "Must contain 1 uppercase letter",
+	}).regex(/[!@#$%^&*()\-_=+[{\]}\\|;:'",.<>/?`~]/, {
+		message: "Must contain 1 special character",
 	}),
 	confirmpassword: z.string()
 }).refine((f) => f.password === f.confirmpassword, {
@@ -59,6 +68,7 @@ const formSchema = z.object({
  
 function ProfileForm() {	
 	const auth = useAuth()
+	const navigate = useNavigate()
 	const [dialogOpen, setDialogOpen] = useState(false)
 	const [dialogText, setDialogText] = useState("")
 	const [pwHidden, setPwHidden] = useState(false)
@@ -70,8 +80,7 @@ function ProfileForm() {
 			email: '',
 			password: '',
 			confirmpassword: '',
-			//firstname: '',
-			//lastname: '',
+			name: '',
 		},
 	})
 
@@ -81,15 +90,15 @@ function ProfileForm() {
 				username: values.username,
 				email: values.email,
 				password: values.password,
-				name: 'Bob',
+				name: values.name,
 			}
 		).then((res) => {
-			console.log(res)
 			const user: User = {
 				username: res.data.user.username,
 				name: res.data.user.name,
 			}
 			auth.login(res.data.access_token, user)
+			navigate("/user/"+user.username)
 		}).catch((e)=>{
 			if (e.response && e.response.data.error) {
 				setDialogOpen(true)
@@ -127,17 +136,16 @@ function ProfileForm() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid gap-4">
-				{/*
 			  	<div className="flex gap-1">
 					<FormField
 					  control={form.control}
-					  name="firstname"
+					  name="name"
 					  render={({ field }) => (
 						<FormItem className="grid gap-2">
-						  <FormLabel htmlFor="firstname">First</FormLabel>
+						  <FormLabel htmlFor="name">Name</FormLabel>
 						  <FormControl>
 							<Input
-							  id="firstname"
+							  id="name"
 							  placeholder="John"
 							  {...field}
 							/>
@@ -146,25 +154,6 @@ function ProfileForm() {
 						</FormItem>
 					  )}
 					/>
-					<FormField
-					  control={form.control}
-					  name="lastname"
-					  render={({ field }) => (
-						<FormItem className="grid gap-2">
-						  <FormLabel htmlFor="lastname">Last</FormLabel>
-						  <FormControl>
-							<Input
-							  id="lastname"
-							  placeholder="Moreno"
-							  {...field}
-							/>
-						  </FormControl>
-						  <FormMessage />
-						</FormItem>
-					  )}
-					/>
-				</div>
-				*/}
                 <FormField
                   control={form.control}
                   name="username"
@@ -183,6 +172,7 @@ function ProfileForm() {
                     </FormItem>
                   )}
                 />
+				</div>
                 <FormField
                   control={form.control}
                   name="email"
