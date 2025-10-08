@@ -14,8 +14,8 @@ import {
 	SidebarProvider, 
 	SidebarInset,
 	SidebarTrigger,
-} from "./components/ui/sidebar";
-import { MobileSidebar, AppSidebar } from "./components/app-sidebar"
+} from "../src/components/ui/sidebar";
+import { MobileSidebar, AppSidebar } from "../src/components/app-sidebar"
 
 import { AuthProvider } from "./hooks/use-auth"
 

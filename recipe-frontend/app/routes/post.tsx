@@ -1,3 +1,4 @@
+/*
 import { AvatarCard } from "../components/avatar-card"
 import { Toggle } from "../components/ui/toggle"
 import { useState, useEffect } from "react"
@@ -9,33 +10,9 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from "../components/ui/carousel"
-import {
-  Sidebar,
-  SidebarInset,
-  SidebarContent,
-  SidebarTrigger,
-  SidebarRail,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarProvider,
-  SidebarGroupLabel,
-  SidebarGroupAction,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarHeader,
-} from "../components/ui/sidebar"
-import { Button } from "../components/ui/button"
-import { Textarea } from "../components/ui/textarea"
-import { 
-	Avatar, 
-	AvatarImage, 
-	AvatarFallback 
-} from "../components/ui/avatar"
-import {
-	useAuth
-} from "../hooks/use-auth"
+*/
 
+/*
 type PostData = {
 	author: string
 	yourPost: boolean,
@@ -65,7 +42,6 @@ const postContent: PostData = {
 const _detailed = false
 
 function PostSidebar(props: {data: PostData}) {
-	const auth = useAuth()
 	const post = props.data
 	
 	return <div>
@@ -107,11 +83,12 @@ function PostSidebar(props: {data: PostData}) {
 		</SidebarContent>
 		<SidebarRail/>
 	</Sidebar>)
-			*/}
+
 }
+*/
 
 function PostContent(props: {data: PostData}) {
-	const auth = useAuth()
+	/*
 	const post = props.data
 	const [numLikes, setNumLikes] = useState(0)
 	const [liked, setLiked] = useState(false)
@@ -120,8 +97,9 @@ function PostContent(props: {data: PostData}) {
 		setNumLikes(69)
 		setLiked(false)
 	}, [])
+	*/
 
-
+	return <div></div>
 	return <div className="w-screen flex flex-col items-center p-2">
 		<div className="w-full md:w-1/2 mb-10">
 			<div className="flex items-center gap-2">
@@ -167,5 +145,6 @@ function PostContent(props: {data: PostData}) {
 }
 
 export default function Post() {
+	return <div></div>
 	return <PostContent data={postContent}/>
 }

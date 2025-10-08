@@ -1,0 +1,23 @@
+---
+import AppLayout from "../layouts/AppLayout.astro"
+import Post from "../components/post-thumbnail.astro"
+---
+<AppLayout>
+	<h1 class="title title-font text-center">Stovetop</h1>
+	<h2 class="-mt-5 text-gray-600 text-center">
+		<i class="text-md">create and share recipes</i>
+	</h2>
+	{/*<Search className="rounded-full text-xl w-[75vw] md:w-[20rem]" placeholder="lemons, sugar"/>*/}
+
+	<div class="w-full grid grid-cols-1 
+		gap-3
+		md:grid-cols-2 md:gap-1
+		justify-items-center
+		2xl:grid-cols-3
+		mt-10">
+		<Post/>
+		<Post/>
+		<Post/>
+		<Post/>
+	</div>
+</AppLayout>

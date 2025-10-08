@@ -1,6 +1,6 @@
-import { Search } from "../components/ui/search"
+//import { Search } from "../components/ui/search"
 
-import Post from "../components/post"
+import Post from "../../src/components/post"
 
 export default function Home() {
 	return (<div className="flex flex-col items-center gap-4">
@@ -8,7 +8,7 @@ export default function Home() {
 		<h2 className="-mt-5 text-gray-600">
 			<i className="text-md">create and share recipes</i>
 		</h2>
-		<Search className="rounded-full text-xl w-[75vw] md:w-[20rem]" placeholder="lemons, sugar"/>
+		{/*<Search className="rounded-full text-xl w-[75vw] md:w-[20rem]" placeholder="lemons, sugar"/>*/}
 
 		<div className="w-fit grid grid-cols-1 
 			gap-3
@@ -19,8 +19,7 @@ export default function Home() {
 			<Post/>
 			<Post/>
 			<Post/>
-			<Post/>
-			<Post/>
 		</div>
 	</div>);
+	
 }

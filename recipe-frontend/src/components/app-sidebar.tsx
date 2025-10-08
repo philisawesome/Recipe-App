@@ -3,6 +3,8 @@ import { useState, useEffect } from "react"
 import {
   Sidebar,
   SidebarContent,
+  SidebarProvider,
+  SidebarInset,
   SidebarTrigger,
   SidebarRail,
   SidebarFooter,
@@ -16,9 +18,9 @@ import {
   SidebarMenuButton,
   SidebarHeader,
 } from "./ui/sidebar"
-import { AvatarCard } from "../../app/components/avatar-cardponents/avatar-card"
+import { AvatarCard } from "./avatar-card"
 import { Button } from "./ui/button"
-import { useAuth } from "../../app/hooks/use-auth"
+//import { useAuth } from "../hooks/use-auth"
 
 interface MenuLink {
 	name: string
@@ -29,7 +31,7 @@ interface MenuLink {
 const MenuLinks: MenuLink[] = [
 	{
 		name: "Home",
-		link: "/", 
+		link: "/index", 
 	},
 	{
 		name: "Search",
@@ -50,9 +52,11 @@ function MenuLinksComponent(props: {auth: any, closeMenu?: ()=>any}) {
 	.map((s: MenuLink, i: number) => {
 		return (<SidebarMenuItem key={i}>
 			<SidebarMenuButton asChild>
-				<Link to={s.link}>
-					<span className="text-lg md:text-md">{s.name}</span>
-				</Link>
+				<a href={s.link}>
+					<span className="text-xl md:text-md">
+						{s.name}
+					</span>
+				</a>
 			</SidebarMenuButton>
 		</SidebarMenuItem>)
 	})
@@ -61,7 +65,7 @@ function MenuLinksComponent(props: {auth: any, closeMenu?: ()=>any}) {
 
 function ProfileSection(props: {auth: any}) {
 	const {auth} = props
-	const navigate = useNavigate()
+	//const navigate = useNavigate()
 
 	return <div className="w-fit lg:w-full gap-3 p-4 flex flex-col">
 		{auth.loggedIn && <div>
@@ -74,43 +78,42 @@ function ProfileSection(props: {auth: any}) {
 			</Button>
 		</div>}
 		{!auth.loggedIn && <div className="flex gap-2 self-center">
-			<Button 
-				onClick={() => {navigate("/login")}}>
+			<Button asChild> 
+				<a href="/login">
 				Login
+				</a>
 			</Button>
-			<Button 
-				variant="link"
-				onClick={() => {navigate("/signup")}}>
-				Signup
+			<Button asChild variant="link">
+				<a href="/signup">
+					Signup
+				</a>
 			</Button>
 		</div>}
 	</div>
 }
 
-function Logo(props: {hideClass?: string}) {
-	const {hideClass} = props
-	return <Link to="/"><div className="flex pt-2 pl-2 group-data-[collapsible=icon]:p-0">
-			<div
-				className={"text-center title-font text-[2rem] "+hideClass}
-			>Stovetop</div>
-			<img className="w-[2rem]" src="/logo.svg"/>
-		</div>
-	</Link>
+function Logo() {
+	return <a href="/index" className="flex pt-2 pl-2 group-data-[collapsible=icon]:p-0">
+		<div
+			className="text-center title-font
+			text-[2rem] group-data-[collapsible=icon]:hidden"
+		>Stovetop</div>
+		<img className="w-[2rem]" src="/logo.svg"/>
+	</a>
 }
 
 // Navbar for desktop/tablet, see MobileSidebar for mobile variant
 export function AppSidebar() {
-	const auth = useAuth()
-
-	const hideClass = "group-data-[collapsible=icon]:hidden"
+	const auth = {}
 
 	return <Sidebar 
 			collapsible="icon"
-			className="flex flex-col justify-between invisible lg:visible" side="left">
+			className="flex flex-col overflow-hidden
+			justify-between invisible h-[100vh] lg:visible" side="left">
 		<SidebarHeader>
-			<Logo hideClass={hideClass}/>	
+			<Logo/>
 		</SidebarHeader>
-		<SidebarContent className={"h-full " + hideClass}>
+		<SidebarContent className={"group-data-[collapsible=icon]:hidden"}>
 			<SidebarGroup className="">
 				<MenuLinksComponent auth={auth}/>
 			</SidebarGroup>
@@ -123,18 +126,14 @@ export function AppSidebar() {
 }
 
 // Navbar for mobile, same functionality as AppSidebar
-export function MobileSidebar() {
-	const [open, setOpen] = useState(false)
-	const auth = useAuth()
-
-	const location = useLocation()
-	useEffect(() => {
-		setOpen(false)
-	}, [location.pathname])
+export function MobileSidebar(props: {
+	open: boolean, setOpen: any}) {
+	const {open, setOpen} = props
+	const auth = {}//useAuth()
 
 	return <div className="visible lg:invisible">
 		{/* Menu/Navbar for mobile */ }
-		{open && <div className="fixed w-[100vw] h-[100vh] top-0 left-0 p-5 flex flex-col bg-white"> 
+		{open && <div className="fixed w-[100vw] h-[100vh] top-0 left-0 p-5 pt-9 flex flex-col bg-white"> 
 			<div className="flex flex-col items-center h-[100vh]">
 				<Logo/>	
 				<MenuLinksComponent 
@@ -144,8 +143,23 @@ export function MobileSidebar() {
 				<ProfileSection auth={auth}/>
 			</div>
 		</div>}
+	</div>
+}
+
+export function SidebarWrapper() {
+	const [open, setOpen] = useState(false)
+
+	return <div>
+		<SidebarProvider defaultOpen={true} 
+		className={open?"fixed z-3 lg:z-1":"fixed z-0 lg:z-1"}
+		>
+			<AppSidebar/>
+			<MobileSidebar open={open} setOpen={setOpen}/>
+		</SidebarProvider>
+
 		{/* Button to open menu */ }
-		<div className="w-full fixed top-0 left-0 bg-white">
+
+		<div className="visible lg:invisible absolute top-0 left-0 bg-white z-5">
 			<Button 
 				onClick={() => {setOpen(!open)}} 
 				variant="ghost" 
@@ -153,9 +167,8 @@ export function MobileSidebar() {
 			>
 				<img src="/menu-dots.svg" 
 					alt="show menu" 
-					className="w-[30px]"/>
+					className="w-[3rem]"/>
 			</Button>
 		</div>
 	</div>
 }
-
