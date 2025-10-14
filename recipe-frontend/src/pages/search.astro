@@ -1,0 +1,39 @@
+---
+import AppLayout from "../layouts/AppLayout.astro"
+import { SearchResult, Searchbar } from "../components/search"
+
+
+const SearchResults = [
+	{
+		title: "peach cobbler",
+		description: "summery peach cobber perfect for parties",
+	},
+	{
+		title: "pbj",
+		description: "classic pbj sandwich",
+	},
+	{
+		title: "kangaroo soup",
+		description: "australian delicacy",
+	},
+	{
+		title: "airfryer wings",
+		description: "crispy wings in the air fryer",
+	},
+]
+---
+<AppLayout>
+	<h1 class="mb-4">Search recipes</h1>
+	<Searchbar className="rounded-full" placeholder="lemons, sugar" client:load/>
+	<div class="w-fit md:w-md mt-5">
+		{SearchResults.map((s, i) => {
+		return <a href="/post">
+				<SearchResult
+					key = {i}
+					title={s.title}
+					description={s.description}
+					client:visible/>
+			</a>
+		})}
+	</div>
+</AppLayout>

@@ -1,0 +1,22 @@
+---
+import AppLayout from "../layouts/AppLayout.astro"
+import { Searchbar } from "../components/search"
+import Post from "../components/post-thumbnail.astro"
+import UserProfileBar from "../components/user-profilebar"
+---
+<AppLayout>
+	<div class="text-wrap flex flex-col items-center gap-3">
+		<div class="md:w-xl flex flex-col gap-3 p-5">
+			<UserProfileBar client:load/>
+
+			<p class="text-sm text-gray-500">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.</p>
+			<Searchbar placeholder="search Link's posts" client:load/>
+		</div>
+
+		<div class="w-fit grid grid-cols-1 md:grid-cols-2 self-center gap-1">
+			<Post/>
+			<Post/>
+		</div>
+	</div>
+</AppLayout>
+

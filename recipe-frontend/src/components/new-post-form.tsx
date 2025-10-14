@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react"
-import { Input } from "../../src/components/ui/input"
-import { Button } from "../../src/components/ui/button"
-import { Textarea } from "../../src/components/ui/textarea"
+import { Input } from "./ui/input"
+import { Button } from "./ui/button"
+import { Textarea } from "./ui/textarea"
 
 import {
   Form,
@@ -11,7 +11,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../../src/components/ui/form"
+} from "./ui/form"
 
 // Page for authenticated users to create and post recipes
 //

@@ -1,11 +1,11 @@
 import { Link } from "react-router"
-import { Search } from "../components/ui/search"
+import { Search } from "../../src/components/search"
 
-import { Button } from "../components/ui/button"
+import { Button } from "../../src/components/ui/button"
 
-import Post from "../components/post"
+import Post from "../../src/components/post"
 
-import { Separator } from "../components/ui/separator"
+import { Separator } from "../../src/components/ui/separator"
 
 function SearchResult({title, description}: any) {
 	return <div><Button variant="ghost" asChild>

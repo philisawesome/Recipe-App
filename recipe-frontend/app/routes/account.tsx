@@ -2,19 +2,19 @@ import {
 	Avatar,
 	AvatarImage,
 	AvatarFallback,
-} from "../components/ui/avatar"
+} from "../../src/components/ui/avatar"
 
 import {
 	HoverCard,
 	HoverCardContent,
 	HoverCardTrigger,
-} from "../components/ui/hover-card"
+} from "../../src/components/ui/hover-card"
 
-import { Input } from "../components/ui/input"
+import { Input } from "../../src/components/ui/input"
 
-import { Button } from "../components/ui/button"
+import { Button } from "../../src/components/ui/button"
 
-import { AvatarCard } from "../components/avatar-card"
+import { AvatarCard } from "../../src/components/avatar-card"
 import { useState, useEffect, type ChangeEvent } from "react"
 import { useAuth } from "../hooks/use-auth"
 

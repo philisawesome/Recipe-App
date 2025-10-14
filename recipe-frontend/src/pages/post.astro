@@ -1,0 +1,27 @@
+---
+import AppLayout from "../layouts/AppLayout.astro"
+import RecipePost from "../components/recipe-post"
+import { type PostData } from "../components/recipe-post"
+
+
+const _postContent: PostData = {
+	author: 'linecook',
+	yourPost: true,
+	title: 'Peach Cobbler',
+	body: 'Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu',
+}
+
+const postContent: PostData = {
+	author: 'justin',
+	yourPost: false,
+	followedAuthor: true,
+	liked: true,
+	title: 'Peach Cobbler',
+	body: 'Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu',
+}
+
+---
+
+<AppLayout>
+	<RecipePost data={postContent} client:load/>
+</AppLayout>

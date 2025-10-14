@@ -1,0 +1,21 @@
+---
+import "../styles/global.css";
+import { 
+	SidebarWrapper,
+} from "../components/app-sidebar"
+---
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />		
+		<link rel="preconnect" href="https://fonts.googleapis.com"/>
+		<link rel="preconnect" href="https://fonts.gstatic.com"/>
+		<link href="https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Marck+Script&display=swap" rel="stylesheet"/>
+	</head>
+	<body>
+		<SidebarWrapper client:load/>
+		<div class="z-2">
+			<slot/>
+		</div>
+  	</body>
+</html>

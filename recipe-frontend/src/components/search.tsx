@@ -4,21 +4,28 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "./popover"
+} from "./ui/popover"
 
-import { Input } from "./input"
+import { Input } from "./ui/input"
 
-import { DefaultFilter } from "./filter-consts"
-import { FilterCard } from "./filter-card"
+import { DefaultFilter } from "./ui/filter-consts"
+import { FilterCard } from "./ui/filter-card"
 
-function Search({ className, type, ...props }: React.ComponentProps<"input">) {
+export function SearchResult({title, description}: any) {
+	return <div className="flex flex-col w-full items-start h-fit">
+		<b>{title}</b>
+		<p>{description}</p>
+	</div>
+}
+
+export function Searchbar({ className, type, ...props }: React.ComponentProps<"input">) {
 	const [filterState, setFilterState] = React.useState(DefaultFilter())
 
-	return <div className="flex gap-2">
+	return <div className="flex flex-row gap-2 items-center">
 		<img src="/search-icon.svg" className="w-5"/>
 		<Input
 			type={type}
-			className={className}
+			className="rounded-full"
 			{...props}
 		/>
 		<Popover>
@@ -34,5 +41,3 @@ function Search({ className, type, ...props }: React.ComponentProps<"input">) {
 		</Popover>
 	</div>
 }
-
-export { Search }

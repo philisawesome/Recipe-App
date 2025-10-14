@@ -6,6 +6,9 @@ const cookieParser = require('cookie-parser');
 const config = require('./config');
 const authRoutes= require('./routes/authRoutes');
 const profRoutes= require('./routes/userRoutes');
+const postRoutes = require('./routes/postRoutes');
+
+
 const app= express();
 
 
@@ -45,6 +48,9 @@ app.use('/api/auth',authRoutes);
 
 //profile 
 app.use('/api',profRoutes);
+
+//post
+app.use('/api', postRoutes);
 
 
 
