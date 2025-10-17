@@ -17,7 +17,7 @@ async function createPost(req, res){
     try {
         const {content = '', images = []} = req.body || {};
         if(!Array.isArray(images) || images.length === 0) {
-            return res.status(400).json({error:'Please add photo(s)'});
+            return res.status(200).json({error:'Please add photo(s)'});
         }
         const newPost = await Posts.create({
             content,

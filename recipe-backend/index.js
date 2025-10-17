@@ -7,6 +7,7 @@ const config = require('./config');
 const authRoutes= require('./routes/authRoutes');
 const profRoutes= require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
+const commentRoutes = require ('./routes/commentRoutes');
 
 
 const app= express();
@@ -52,5 +53,7 @@ app.use('/api',profRoutes);
 //post
 app.use('/api', postRoutes);
 
+//comment 
+app.use('/api', commentRoutes);
 
 
