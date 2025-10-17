@@ -11,3 +11,6 @@ router.route('/comment/:id')
 
 router.patch('/comment/:id/like', auth , commentCtrl.likeComment);
 router.patch('/comment/:id/unLike', auth , commentCtrl.unLikeComment);
+
+
+module.exports = router;
