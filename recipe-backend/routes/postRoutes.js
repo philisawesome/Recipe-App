@@ -19,7 +19,7 @@ router.get('/postDiscover', auth , postCtrl.getPostDiscover);
 
 router.patch('/savePost/:id', auth, postCtrl.savePost);
 router.patch('/unsavePost/:id', auth, postCtrl.unSavePost);
-router.get('/getSavedPost', auth, getsavedPost);
+router.get('/getSavedPost', auth, postCtrl.getSavedPost);
 
 module.exports = router;
 
