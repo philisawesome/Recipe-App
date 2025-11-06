@@ -22,6 +22,8 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser()); 
 
+app.get('/healthz', (req, res) => res.send('healthy'));
+
 
 
 
