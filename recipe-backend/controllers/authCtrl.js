@@ -1,6 +1,7 @@
 const Users = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+import { node_env, refreshTokenSecret } from "../config";
 
 const { createAccessToken, createRefreshToken } = require("../utils/jwtHelpers");
 
@@ -63,8 +64,8 @@ async function register(req, res){
     //adding refresh cookie for security 
         res.cookie("refresh_token", refresh_token,{
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+            secure: node_env === "production",
+            sameSite: node_env === "production" ? "strict" : "lax",
             path: "/api/refresh_token",
             maxAge: 30 * 24 * 60 * 60 *1000
 
@@ -125,8 +126,8 @@ async function login (req, res){
 
         res.cookie("refresh_token", refresh_token,{
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+            secure: node_env === "production",
+            sameSite: node_env === "production" ? "strict" : "lax",
             path: "/api/refresh_token",
             maxAge: 30 * 24 * 60 * 60 *1000
 
@@ -152,16 +153,14 @@ async function login (req, res){
         console.error(err);
         return res.status(500).json({error: "Server Error"});
     }
-
-
-
 }
+
 async function logout(req, res){
     try{
         res.clearCookie("refresh_token",{
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+            secure: node_env === "production",
+            sameSite: node_env === "production" ? "strict" : "lax",
             path: "/api/refresh_token",
 
         });
@@ -186,7 +185,7 @@ async function generateAccessToken(req, res){
         
         }
         //verfies token with the secret
-        jwt.verify(rf_token,process.env.REFRESH_TOKEN_SECRET,async(err,decoded)=>{
+        jwt.verify(rf_token, refreshTokenSecret, async(err,decoded)=>{
 
             //if fails
             if(err){

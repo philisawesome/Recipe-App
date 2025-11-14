@@ -90,6 +90,7 @@ export default function SignupForm() {
 				name: values.name,
 			}
 		).then((res) => {
+			console.log(res)
 			const user: User = {
 				username: res.data.user.username,
 				name: res.data.user.name,

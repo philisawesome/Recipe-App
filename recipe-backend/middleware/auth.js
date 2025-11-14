@@ -1,5 +1,6 @@
 const Users = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+import { accessTokenSecret } from "../config";
 
 async function auth (req,res, next){
     try{
@@ -13,7 +14,7 @@ async function auth (req,res, next){
 
         let decoded;
         try{
-            decoded= jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+            decoded= jwt.verify(token,accessTokenSecret);
 
         }catch(err){
             return res.status(401).json({error:"Token is invalid or expired."});
