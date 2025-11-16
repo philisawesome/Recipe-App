@@ -1,6 +1,6 @@
 const Users = require('../models/userModel');
 const jwt = require('jsonwebtoken');
-import { accessTokenSecret } from "../config";
+const { accessTokenSecret } = require("../config");
 
 async function auth (req,res, next){
     try{
@@ -45,5 +45,4 @@ async function auth (req,res, next){
 
 
 
-module.exports=
-    auth;
+module.exports= auth;

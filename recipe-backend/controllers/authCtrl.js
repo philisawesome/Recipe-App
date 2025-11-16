@@ -1,7 +1,7 @@
 const Users = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-import { node_env, refreshTokenSecret } from "../config";
+const { node_env, refreshTokenSecret } = require("../config");
 
 const { createAccessToken, createRefreshToken } = require("../utils/jwtHelpers");
 
