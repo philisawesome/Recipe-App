@@ -7,6 +7,7 @@ db.users.insertMany([
 	},
 	{
 		username: 'Albert',
+		password: 'Albert',
 		email: 'albert@gmail.com'
 	}
 ])

@@ -20,6 +20,7 @@ import {
 } from "./ui/sidebar"
 import { AvatarCard } from "./avatar-card"
 import { Button } from "./ui/button"
+import { loggedIn } from "./auth-store"
 //import { useAuth } from "../hooks/use-auth"
 
 interface MenuLink {
@@ -105,6 +106,13 @@ function Logo() {
 // Navbar for desktop/tablet, see MobileSidebar for mobile variant
 export function AppSidebar() {
 	const auth = {}
+	const [yo, setYo] = useState("")
+
+	useEffect(() => {
+		{loggedIn.subscribe(l => {
+			return l ? setYo("loggedIn") : setYo("notloggedIn")
+		})}
+	}, [])
 
 	return <Sidebar 
 			collapsible="icon"
@@ -112,6 +120,7 @@ export function AppSidebar() {
 			justify-between invisible h-[100vh] lg:visible" side="left">
 		<SidebarHeader>
 			<Logo/>
+			{yo}
 		</SidebarHeader>
 		<SidebarContent className={"group-data-[collapsible=icon]:hidden"}>
 			<SidebarGroup className="">

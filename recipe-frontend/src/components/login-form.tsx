@@ -1,3 +1,4 @@
+import axios from "axios"
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -14,6 +15,7 @@ import {
 	FormMessage,
 } from "./ui/form"
 import { Input } from "./ui/input"
+import { loggedIn } from "./auth-store"
  
 const formSchema = z.object({
 	username: z.string(),
@@ -31,6 +33,26 @@ function LoginForm() {
 		},
   	})
 
+	async function onSubmit(values: z.infer<typeof formSchema>, e:any) {
+		e.preventDefault()
+		axios.post('http://localhost:4000/api/auth/login', 
+			{
+				username: values.username,
+				password: values.password,
+			}
+		).then((res) => {
+			const user = {
+				username: res.data.user.username,
+				name: res.data.user.name,
+			}
+			loggedIn.set(true)
+			//login(res.data.access_token, user)
+			//navigate('/user/' + user.username)
+		}).catch((e) => {
+			setLoginFailed(true)
+		})
+	}
+
 	return (<div className="flex flex-col 
 		min-h-[50vh] h-full w-full items-center justify-center">
 		<Card className="w-[90%] md:w-xs">
@@ -42,7 +64,10 @@ function LoginForm() {
 			</CardHeader>
 			<CardContent>
 			<Form {...form}>
-				<form onChange={()=>setLoginFailed(false)} className="space-y-8">
+				<form 
+					onChange={()=>setLoginFailed(false)} 
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="space-y-8">
 				<div className="grid gap-4">
 					{/* Username field */}
 					<FormField
