@@ -26,7 +26,7 @@ async function uploadFile(file, fileuid) {
 }
 
 export async function uploadPhotoS3(req, res, next) {
-	if (node_env == "dev") {
+	if (node_env == "dev" || node_env == "test") {
 		req.body.images = ["505cc571-8f3a-47a8-a307-bff7b4950add"]
 		next()
 		return

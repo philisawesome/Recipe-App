@@ -1,10 +1,9 @@
-const request = require('supertest')
-const a = require("../recipe-backend/app")
-const mongoose = require('mongoose');
-const app = a.app
+import request from 'supertest'
+import { app, connectDatabase } from "../recipe-backend/app"
+import mongoose from 'mongoose';
 
 beforeAll(async () => {
-	await a.connectDatabase()
+	await connectDatabase()
 })
 
 afterAll(async () => {
@@ -136,15 +135,18 @@ describe('get profile', () => {
 });
 
 describe('create post', () => {
-	it('profile/:id', async () => {
+	it('POST posts', async () => {
 		let access_token = await TM.gotAccessToken();
 
 		await request(app)
 		.post(`/api/posts`)
-		.send({
-			images: [""],
+		.set({
+			'Authorization': 'Bearer ' + access_token,
 		})
-		.set('Authorization', 'Bearer ' + access_token)
+		.send({
+			file: new File([""], "file", { type: 'image/png' }),
+			title: "title",
+		})
 		.expect(201)
 		.then(res => {
 			logerr(res)
