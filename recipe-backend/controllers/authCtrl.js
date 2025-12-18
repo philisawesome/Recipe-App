@@ -1,12 +1,11 @@
-const Users = require("../models/userModel");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const { node_env, refreshTokenSecret } = require("../config");
+import Users from "../models/userModel.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-const { createAccessToken, createRefreshToken } = require("../utils/jwtHelpers");
+import { node_env, refreshTokenSecret } from "../config.js";
+import { createAccessToken, createRefreshToken } from "../utils/jwtHelpers.js";
 
-
-async function register(req, res){
+export async function register(req, res){
     try{
         const {username, email, password, name}= req.body;
     
@@ -96,7 +95,7 @@ async function register(req, res){
 
 };
 
-async function login (req, res){
+export async function login (req, res){
     try{
         //grabs username n password
         const {username: rawUsername = "", password = ""}= req.body ?? {};
@@ -155,7 +154,7 @@ async function login (req, res){
     }
 }
 
-async function logout(req, res){
+export async function logout(req, res){
     try{
         res.clearCookie("refresh_token",{
             httpOnly: true,
@@ -176,7 +175,7 @@ async function logout(req, res){
 
 }
 
-async function generateAccessToken(req, res){
+export async function generateAccessToken(req, res){
     try{
         //grabs cookie from browser
         const rf_token= req.cookies.refresh_token;
@@ -214,20 +213,10 @@ async function generateAccessToken(req, res){
     }
 
 }
-        
 
-
-    
-    
-
-
-
-
-
-module.exports= {
-    register,
-    login,
-    logout,
-    generateAccessToken
-
-};
+export default {
+    register:register,
+    login:login,
+    logout:logout,
+    generateAccessToken:generateAccessToken
+}

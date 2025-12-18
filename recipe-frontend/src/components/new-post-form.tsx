@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 import { Textarea } from "./ui/textarea"
+import axios from "axios"
 
 import {
   Form,
@@ -26,7 +27,7 @@ import { useForm } from "react-hook-form"
 
 import { z } from "zod"
 const FormSchema = z.object({
-	recipeName: z.string().min(2, {
+	recipeTitle: z.string().min(2, {
 		message: "Recipe name must be at least 2 characters.",
 	}),
 	photo: z.any(),
@@ -37,28 +38,43 @@ const FormSchema = z.object({
 
 export default function NewPost() {
 	const [photo, setPhoto] = useState<File | null>()
+	const fileInputRef = useRef<any>(null);
 
-	useEffect(() => {}, [photo])
+	useEffect(() => {
+		if (fileInputRef.current) {
+			fileInputRef.current.value = '';
+		}
+	}, [])
 
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 		defaultValues: {
-			recipeName: "",
+			recipeTitle: "",
 			photo: undefined,
 			summary: "",
 		},
 	})
 
 	function validateAndPost(data: any) {
-		console.log(photo)
-		data.photo = photo ? photo : null
 		handlePost(data)
 	}
 
 	function handlePost(formData: z.infer<typeof FormSchema>) {
 		// Validate and send POST request here
 		try {
-			console.log(JSON.stringify(formData))
+			axios.post('http://localhost:4000/api/posts',
+				{
+					file: photo,
+					title: formData.recipeTitle,
+					content: formData.summary,
+				},
+				{
+					headers: { 
+						'Content-Type': 'multipart/form-data',
+						'Authorization': 'Bearer ' + localStorage.getItem('token')
+					}
+				}
+			)
 		} catch (e) {
 			console.log(e)
 		}
@@ -74,11 +90,12 @@ export default function NewPost() {
 		{ /* Each div in form separates fields */ }
 		<Form {...form}>
 			<form 
+				encType="multipart/form-data"
 				className="mt-4 flex flex-col gap-7"
-				onSubmit={form.handleSubmit(validateAndPost)}>
+				onSubmit={form.handleSubmit(handlePost)}>
 				<FormField
 					control={form.control}
-					name="recipeName"
+					name="recipeTitle"
 					render={({field}) => (
 						<FormItem>
 							<FormLabel>Recipe name</FormLabel>
@@ -101,17 +118,20 @@ export default function NewPost() {
 						<FormItem>
 							<FormLabel>Add a photo</FormLabel>
 							<FormControl>
+
 							<input 
 								className="text-sm 
 								outline-1
 								p-2 rounded-sm"
 								name="photo"
 								type="file"
+								ref={fileInputRef}
 								onChange={(e) => {
 									if (e.target.files && e.target.files.length > 0) {
 										setPhoto(e.target.files[0])
 									}
 							}}/>
+
 							</FormControl>
 							<FormMessage/>
 						</FormItem>

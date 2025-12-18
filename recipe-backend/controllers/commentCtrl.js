@@ -1,10 +1,10 @@
-const Posts= require("../models/postModel");
-const Comments = require("../models/commentModel");
-const mongoose = require("mongoose");
+import Posts from "../models/postModel.js";
+import Comments from "../models/commentModel.js";
+import mongoose from "mongoose";
 
 const isId = v => mongoose.isValidObjectId(v);
 
-async function createComment (req, res){
+export async function createComment (req, res){
     try{
         const {postId, content = '', reply = null} = req.body ?? {};
 
@@ -50,7 +50,7 @@ async function createComment (req, res){
 
 
 }
-async function updateComment (req,res){
+export async function updateComment (req,res){
     try{
         const {content = ''}  =req.body || {};
         if (!isId(req.params.id)) return res.status(400).json({ error: "Invalid comment id." });
@@ -81,7 +81,7 @@ async function updateComment (req,res){
     }
 }
 //delete by comment author OR post owner
-async function deleteComment(req,res){
+export async function deleteComment(req,res){
     try{
         if (!isId(req.params.id)) return res.status(400).json({ error: "Invalid comment id." });
 
@@ -112,7 +112,7 @@ async function deleteComment(req,res){
 }
 
 
-async function likeComment(req,res){
+export async function likeComment(req,res){
     try{
         if (!isId(req.params.id)) return res.status(400).json({ error: "Invalid comment id." });
 
@@ -134,7 +134,7 @@ async function likeComment(req,res){
     }
 }
 
-async function unLikeComment (req, res){
+export async function unLikeComment (req, res){
     try{
         if (!isId(req.params.id)) return res.status(400).json({ error: "Invalid comment id." });
 
@@ -156,12 +156,10 @@ async function unLikeComment (req, res){
 
  
 }
-
-module.exports = {
-    createComment,
-    updateComment, 
-    deleteComment,
-    likeComment,
-    unLikeComment
-
+export default {
+	createComment:createComment,
+    updateComment:updateComment, 
+    deleteComment:deleteComment,
+    likeComment:likeComment,
+    unLikeComment:unLikeComment
 }

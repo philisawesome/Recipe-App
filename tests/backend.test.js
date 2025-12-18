@@ -36,6 +36,23 @@ class TestManager {
 
 		return this.access_token
 	}
+
+	setUserId(user_id) {
+		this.user_id = user_id 
+		if (this.idresolver) {
+			this.idresolver()
+		}
+	}
+
+	async gotUserId() {
+		if (this.user_id) return this.user_id
+
+		await new Promise((resolve) => {
+			this.idresolver = resolve
+		})
+
+		return this.user_id
+	}
 }
 
 const TM = new TestManager(); 
@@ -78,7 +95,7 @@ describe('new account and logging in', () => {
   	});
 });
 
-describe('user profile and following', () => {
+describe('my profile and following', () => {
 	it('profile/me success and fail', async () => {
 		await request(app)
 		.get('/api/profile/me')
@@ -92,7 +109,45 @@ describe('user profile and following', () => {
 		.expect(200)
 		.then(res => {
 			logerr(res)
+			expect(res.body.user._id).not.toBeNull();
+			TM.setUserId(res.body.user._id)
+			expect(res.body.user.email).toEqual('justy@justy.com')
+			expect(res.body.user.name).toEqual('Justin')
+			expect(res.body.user.username).toEqual('justin')
+			expect(res.body.user.following).toHaveLength(0)
 			expect(res.statusCode).toEqual(200)
+		})
+	})
+});
+
+describe('get profile', () => {
+	it('profile/:id', async () => {
+		let access_token = await TM.gotAccessToken();
+		let user_id = await TM.gotUserId();
+
+		await request(app)
+		.get(`/api/profile/${user_id}`)
+		.set('Authorization', 'Bearer ' + access_token)
+		.expect(200)
+		.then(res => {
+			logerr(res)
+		})
+	})
+});
+
+describe('create post', () => {
+	it('profile/:id', async () => {
+		let access_token = await TM.gotAccessToken();
+
+		await request(app)
+		.post(`/api/posts`)
+		.send({
+			images: [""],
+		})
+		.set('Authorization', 'Bearer ' + access_token)
+		.expect(201)
+		.then(res => {
+			logerr(res)
 		})
 	})
 });

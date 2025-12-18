@@ -1,6 +1,12 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose"
 
 const postSchema = new mongoose.Schema({
+    title: {
+        type: String, 
+		required: true,
+        trim:true,
+        maxlength:30
+    },
     content: {
         type: String, 
         trim:true,
@@ -30,21 +36,10 @@ const postSchema = new mongoose.Schema({
         default:[]
 
     },
-
-
-
-
-
-
-
-
 },
 {timestamps: true}
-
-
 );
 //so you can sort post by newest 
 postSchema.index({ user: 1, createdAt: -1 });
 
-
-module.exports = mongoose.model("Post", postSchema);
+export default mongoose.model("Post", postSchema);

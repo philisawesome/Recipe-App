@@ -41,7 +41,7 @@ import {
 
 const formSchema = z.object({
 	username: z.string().regex(/^[a-z0-9_]{3,20}$/, {
-		message: "Username must be 3-20 chars (a-z, 0-9, _ only).",
+		message: "3-20 chars (a-z, 0-9, _ only).",
 	}),
 	email: z.email().nonempty(),
 	name: z.string().nonempty({
@@ -82,6 +82,7 @@ export default function SignupForm() {
 	})
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
+		return alert("logging in")
 		axios.post('http://localhost:4000/api/auth/register', 
 			{
 				username: values.username,
@@ -123,7 +124,7 @@ export default function SignupForm() {
 			</AlertDialogContent>
 		</AlertDialog>
 
-      <Card className="w-[90vw] md:w-xs">
+      <Card className="w-[90vw] md:w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Sign Up</CardTitle>
           <CardDescription>
@@ -134,24 +135,23 @@ export default function SignupForm() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid gap-4">
-			  	<div className="flex gap-1">
-					<FormField
-					  control={form.control}
-					  name="name"
-					  render={({ field }) => (
-						<FormItem className="grid gap-2">
-						  <FormLabel htmlFor="name">Name</FormLabel>
-						  <FormControl>
-							<Input
-							  id="name"
-							  placeholder="John"
-							  {...field}
-							/>
-						  </FormControl>
-						  <FormMessage />
-						</FormItem>
-					  )}
-					/>
+				<FormField
+				  control={form.control}
+				  name="name"
+				  render={({ field }) => (
+					<FormItem className="grid gap-2">
+					  <FormLabel htmlFor="name">Name</FormLabel>
+					  <FormControl>
+						<Input
+						  id="name"
+						  placeholder="John"
+						  {...field}
+						/>
+					  </FormControl>
+					  <FormMessage />
+					</FormItem>
+				  )}
+				/>
                 <FormField
                   control={form.control}
                   name="username"
@@ -170,7 +170,6 @@ export default function SignupForm() {
                     </FormItem>
                   )}
                 />
-				</div>
                 <FormField
                   control={form.control}
                   name="email"

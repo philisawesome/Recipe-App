@@ -2,6 +2,7 @@
 import AppLayout from "../layouts/AppLayout.astro"
 import RecipePost from "../components/recipe-post"
 import { type PostData } from "../components/recipe-post"
+const url = Astro.url.searchParams.get('id') || 'yo';
 
 
 const _postContent: PostData = {

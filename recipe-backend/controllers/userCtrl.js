@@ -1,14 +1,12 @@
-// controllers/userController.js
-const mongoose = require("mongoose");
-const User = require("../models/userModel");
+import mongoose from "mongoose";
+import User from "../models/userModel.js";
 
 //need this for the speical regex characters
 function escapeRegex(str=""){
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-
-async function searchUser(req, res){
+export async function searchUser(req, res){
     try{
         const raw = (req.query.q ?? req.query.username ?? "").trim();
         if (!raw) return res.json({users: [] });
@@ -36,7 +34,7 @@ async function searchUser(req, res){
  * GET /api/profile/me
  * Uses auth middleware that attaches full user to req.user
  */
-async function getMyProfile(req, res) {
+export async function getMyProfile(req, res) {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
@@ -52,7 +50,7 @@ async function getMyProfile(req, res) {
 /**
  * GET /api/profile/:id
  */
-async function getTheirProfile(req, res) {
+export async function getTheirProfile(req, res) {
   try {
     const { id } = req.params;
     if (!mongoose.isValidObjectId(id)) {
@@ -75,7 +73,7 @@ async function getTheirProfile(req, res) {
 /**
  * POST /api/profile/:id/follow
  */
-async function followUser(req, res) {
+export async function followUser(req, res) {
   try {
     const targetId = req.params.id;
     const meId = req.user?._id?.toString();
@@ -120,7 +118,7 @@ async function followUser(req, res) {
 /**
  * POST /api/profile/:id/unfollow
  */
-async function unfollowUser(req, res) {
+export async function unfollowUser(req, res) {
   try {
     const targetId = req.params.id;
     const meId = req.user?._id?.toString();
@@ -165,7 +163,7 @@ async function unfollowUser(req, res) {
 /*
  * GET /api/profile/:id/followers?skip=0&limit=10
  */
-async function getFollowers(req, res) {
+export async function getFollowers(req, res) {
   try {
     const { id } = req.params;
     if (!mongoose.isValidObjectId(id)) {
@@ -213,7 +211,7 @@ async function getFollowers(req, res) {
 /**
  * GET /api/profile/:id/following?skip=0&limit=10
  */
-async function getFollowing(req, res) {
+export async function getFollowing(req, res) {
   try {
     const { id } = req.params;
     if (!mongoose.isValidObjectId(id)) {
@@ -257,13 +255,12 @@ async function getFollowing(req, res) {
   }
 }
 
-module.exports = {
-  searchUser,
-  getMyProfile,
-  getTheirProfile,
-  followUser,
-  unfollowUser,
-  getFollowers,
-  getFollowing,
+export default {
+  searchUser:searchUser,
+  getMyProfile:getMyProfile,
+  getTheirProfile:getTheirProfile,
+  followUser:followUser,
+  unfollowUser:unfollowUser,
+  getFollowers:getFollowers,
+  getFollowing:getFollowing,
 };
-

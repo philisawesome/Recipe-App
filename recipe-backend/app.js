@@ -1,18 +1,17 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors= require('cors');
-const cookieParser = require('cookie-parser');
-const config = require('./config');
-const authRoutes= require('./routes/authRoutes');
-const profRoutes= require('./routes/userRoutes');
-const postRoutes = require('./routes/postRoutes');
-const commentRoutes = require ('./routes/commentRoutes');
+import dotenv from 'dotenv'
+dotenv.config()
 
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import config from './config.js';
+import authRoutes from './routes/authRoutes.js';
+import profRoutes from './routes/userRoutes.js';
+import postRoutes from './routes/postRoutes.js';
+import commentRoutes from './routes/commentRoutes.js';
 
-const app= express();
-
-
+export const app = express();
 
 //middleware stuff??? 
 app.use(cors({
@@ -42,7 +41,7 @@ app.use('/api', postRoutes);
 //comment 
 app.use('/api', commentRoutes);
 
-async function connectDatabase() {
+export async function connectDatabase() {
 	//connecting to mongo
 	await mongoose.connect(config.mongoURI).then(()=>{
 		console.log("Connected to MongoDB");
@@ -51,6 +50,3 @@ async function connectDatabase() {
 		})
 	})
 }
-
-module.exports = { app, connectDatabase };
-

@@ -1,25 +1,24 @@
-const Posts= require("../models/postModel");
-const Comments = require("../models/commentModel");
-const Users = require("../models/userModel");
-const mongoose = require("mongoose");
-
+import Posts from "../models/postModel.js";
+import Comments from "../models/commentModel.js";
+import Users from "../models/userModel.js";
+import mongoose from "mongoose";
 
 function pagination(q, {defaultLimit = 9, maxLimit = 50}= {}){
     const page = Math.max(parseInt(q.page) || 1 , 1 );
     const limit = Math.min(Math.max(parseInt(q.limit) || defaultLimit, 1), maxLimit);
     const skip = (page-1) * limit;
     return {page, limit, skip};
-
 }
 
-
-async function createPost(req, res){
+export async function createPost(req, res){
     try {
-        const {content = '', images = []} = req.body || {};
+        const {title, content = '', images = []} = req.body || {};
         if(!Array.isArray(images) || images.length === 0) {
             return res.status(200).json({error:'Please add photo(s)'});
         }
+
         const newPost = await Posts.create({
+			title,
             content,
             images,
             user: req.user._id
@@ -37,7 +36,7 @@ async function createPost(req, res){
 }
 
 //feed of me + following
-async function getPosts(req, res){
+export async function getPosts(req, res){
     try{
         const {page, limit, skip}= pagination(req.query);
         const ids = [...(req.user.following || []), req.user._id];
@@ -73,7 +72,7 @@ async function getPosts(req, res){
 
 }
 
-async function updatePost(req, res){
+export async function updatePost(req, res){
     try{
         const {content , images } = req.body
 
@@ -104,7 +103,7 @@ async function updatePost(req, res){
 
     }
 }
-async function likePost(req, res){
+export async function likePost(req, res){
     try {
         const updated = await Posts.findOneAndUpdate(
             {_id: req.params.id},
@@ -120,7 +119,7 @@ async function likePost(req, res){
     }
 }
 
-async function unLikePost(req, res){
+export async function unLikePost(req, res){
     try{
         const updated = await Posts.findOneAndUpdate(
             {_id: req.params.id},
@@ -140,7 +139,7 @@ async function unLikePost(req, res){
 }
 
 //post by user
-async function getUserPosts(req, res){
+export async function getUserPosts(req, res){
     try{
         const {page, limit, skip} = pagination(req.query);
         if(!mongoose.isValidObjectId(req.params.id)){
@@ -167,8 +166,7 @@ async function getUserPosts(req, res){
 }
 
 // get a singular post 
-
-async function getPost(req, res){
+export async function getPost(req, res){
     try{
         if (!mongoose.isValidObjectId(req.params.id)){
             return res.status(404).json({error:'post not found'});
@@ -201,7 +199,7 @@ async function getPost(req, res){
 
 }
 //random post
-async function getPostDiscover (req, res){
+export async function getPostDiscover (req, res){
     try {
         const exclude = [...(req.user.following || [] ), req.user._id];
         const size = parseInt(req.query.num || '8' );
@@ -224,7 +222,7 @@ async function getPostDiscover (req, res){
 
 }
 
-async function deletePost(req, res){
+export async function deletePost(req, res){
     try{
         const post = await Posts.findOneAndDelete({
             _id: req.params.id,
@@ -246,7 +244,7 @@ async function deletePost(req, res){
     }
 }
 
-async function savePost(req,res){
+export async function savePost(req,res){
     try{
         const updated = await Users.findOneAndUpdate(
             {_id: req.user._id},
@@ -265,7 +263,7 @@ async function savePost(req,res){
 
 }
 
-async function unSavePost(req,res){
+export async function unSavePost(req,res){
     try{
         const updated = await Users.findOneAndUpdate(
             {_id: req.user._id},
@@ -284,7 +282,7 @@ async function unSavePost(req,res){
 
 }
 
-async function getSavedPost(req,res){
+export async function getSavedPost(req,res){
     try{
         const {page, skip, limit } = pagination(req.query);
         const ids = req.user.saved || [];
@@ -317,18 +315,17 @@ async function getSavedPost(req,res){
 
 }
 
-module.exports = {
-    createPost, 
-    getPosts,
-    updatePost,
-    likePost, 
-    unLikePost,
-    getUserPosts,
-    getPost,
-    getPostDiscover, 
-    deletePost,
-    savePost, 
-    unSavePost,
-    getSavedPost
-    
+export default {
+	createPost:createPost, 
+    getPosts:getPosts,
+    updatePost:updatePost,
+    likePost:likePost, 
+    unLikePost:unLikePost,
+    getUserPosts:getUserPosts,
+    getPost:getPost,
+    getPostDiscover:getPostDiscover, 
+    deletePost:deletePost,
+    savePost:savePost, 
+    unSavePost:unSavePost,
+    getSavedPost:getSavedPost,
 }

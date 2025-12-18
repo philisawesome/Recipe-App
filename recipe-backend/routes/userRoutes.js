@@ -1,6 +1,7 @@
-const router = require("express").Router();
-const auth = require("../middleware/auth");
-const userCtrl = require('../controllers/userCtrl'); 
+import express from "express"
+const router = express.Router()
+import auth from "../middleware/auth.js"
+import userCtrl from "../controllers/userCtrl.js"
 
 router.get('/search', auth, userCtrl.searchUser);
 
@@ -15,4 +16,4 @@ router.delete('/profile/:id/unfollow', auth, userCtrl.unfollowUser);
 router.get('/profile/:id/followers', auth, userCtrl.getFollowers);
 router.get('/profile/:id/following', auth, userCtrl.getFollowing);
 
-module.exports= router; 
+export default router

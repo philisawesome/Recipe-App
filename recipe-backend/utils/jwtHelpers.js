@@ -1,12 +1,10 @@
-const jwt = require('jsonwebtoken');
-const { accessTokenSecret, refreshTokenSecret } = require("../config");
+import jwt from 'jsonwebtoken';
+import { accessTokenSecret, refreshTokenSecret } from "../config.js";
 
-function createAccessToken(payload){
-    return jwt.sign(payload, accessTokenSecret, {expiresIn:"15m"});
+export function createAccessToken(payload){
+    return jwt.sign(payload, accessTokenSecret, {expiresIn:"1d"});
 }
 
-function createRefreshToken(payload){
+export function createRefreshToken(payload){
     return jwt.sign(payload, refreshTokenSecret, {expiresIn:"30d"});
 }
-
-module.exports= {createAccessToken, createRefreshToken};

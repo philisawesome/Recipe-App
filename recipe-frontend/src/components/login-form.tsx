@@ -15,7 +15,7 @@ import {
 	FormMessage,
 } from "./ui/form"
 import { Input } from "./ui/input"
-import { loggedIn } from "./auth-store"
+import { loggedIn, login, type User } from "./auth-store"
  
 const formSchema = z.object({
 	username: z.string(),
@@ -23,6 +23,7 @@ const formSchema = z.object({
 })
  
 function LoginForm() {
+	const [error, setError] = useState("")
 	const [loginFailed, setLoginFailed] = useState(false)
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -33,29 +34,30 @@ function LoginForm() {
 		},
   	})
 
-	async function onSubmit(values: z.infer<typeof formSchema>, e:any) {
-		e.preventDefault()
+	async function onSubmit(values: z.infer<typeof formSchema>) {
 		axios.post('http://localhost:4000/api/auth/login', 
 			{
 				username: values.username,
 				password: values.password,
 			}
 		).then((res) => {
-			const user = {
+			const user: User = {
 				username: res.data.user.username,
 				name: res.data.user.name,
 			}
-			loggedIn.set(true)
-			//login(res.data.access_token, user)
+
+			login(res.data.access_token, user)
 			//navigate('/user/' + user.username)
 		}).catch((e) => {
+			console.log(e.response.data.error);
+			setError(e.response.data.error)
 			setLoginFailed(true)
 		})
 	}
 
 	return (<div className="flex flex-col 
 		min-h-[50vh] h-full w-full items-center justify-center">
-		<Card className="w-[90%] md:w-xs">
+		<Card className="w-[90%] md:w-md">
 			<CardHeader>
 				<CardTitle className="text-2xl">Login</CardTitle>
 				<CardDescription>
@@ -66,7 +68,10 @@ function LoginForm() {
 			<Form {...form}>
 				<form 
 					onChange={()=>setLoginFailed(false)} 
-					onSubmit={form.handleSubmit(onSubmit)}
+					onSubmit={(e) => {
+						e.preventDefault()
+						form.handleSubmit(onSubmit)(e)
+					}}
 					className="space-y-8">
 				<div className="grid gap-4">
 					{/* Username field */}
@@ -111,7 +116,7 @@ function LoginForm() {
 					<Button type="submit" className="w-full">Login</Button>
 					{ loginFailed && 
 					<span className="text-red-500 text-xs">
-						Could not login. Try again.
+					Could not login: {error}
 					</span> }
 				</div>
 				</form>

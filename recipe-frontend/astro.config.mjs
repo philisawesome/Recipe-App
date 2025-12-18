@@ -8,6 +8,9 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
 	integrations: [react({include:["**/app/**"]})],
 	site: "https://stovetop-recipe-app.s3.us-west-1.amazonaws.com/",
+	redirects: {
+		'/index': '/', // todo: replace index with / in source code
+	},
 	publicDir: "./src/assets",
 	build: {
 		inlineStylesheets: 'always',

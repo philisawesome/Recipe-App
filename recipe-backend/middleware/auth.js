@@ -1,8 +1,8 @@
-const Users = require('../models/userModel');
-const jwt = require('jsonwebtoken');
-const { accessTokenSecret } = require("../config");
+import Users from '../models/userModel.js';
+import jwt from 'jsonwebtoken';
+import { accessTokenSecret } from "../config.js";
 
-async function auth (req,res, next){
+export default async function auth(req,res, next){
     try{
 
         const authHeader = req.header("Authorization");
@@ -28,21 +28,8 @@ async function auth (req,res, next){
         //returns authenticated user to the requested user
         req.user= user;
         next();
-
-
-
     }catch(err){
         console.error("Auth middleware error:",err);
         return res.status(500).json({error:"Server error."});
-
-
     }
-
-
-
-
 }
-
-
-
-module.exports= auth;

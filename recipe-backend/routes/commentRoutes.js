@@ -1,7 +1,7 @@
-const router = require('express').Router();
-const auth = require('../middleware/auth');
-const commentCtrl = require('../controllers/commentCtrl');
-
+import express from "express"
+const router = express.Router()
+import auth from "../middleware/auth.js"
+import commentCtrl from "../controllers/commentCtrl.js"
 
 router.post('/comment',auth , commentCtrl.createComment);
 
@@ -12,5 +12,4 @@ router.route('/comment/:id')
 router.patch('/comment/:id/like', auth , commentCtrl.likeComment);
 router.patch('/comment/:id/unLike', auth , commentCtrl.unLikeComment);
 
-
-module.exports = router;
+export default router

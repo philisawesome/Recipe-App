@@ -3,6 +3,7 @@ import "../styles/global.css";
 import { 
 	SidebarWrapper,
 } from "../components/app-sidebar"
+import { loggedIn } from "../components/auth-store"
 ---
 <!DOCTYPE html>
 <html>
@@ -13,9 +14,35 @@ import {
 		<link href="https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Marck+Script&display=swap" rel="stylesheet"/>
 	</head>
 	<body>
-		<SidebarWrapper client:load/>
-		<div class="z-2">
+		{/* <SidebarWrapper client:load/> */}
+		<div class="z-2 pt-10">
+			<div class="absolute top-0 left-0 z-4 navbar w-screen flex justify-center">
+				<a href="/"><h1 class="title title-font text-center">Stovetop</h1></a>
+				<a href="/search">Search</a>
+				<a href="/user">Profile</a>
+				<a href="/login">Login</a>
+				<a href="/signup">Signup</a>
+				<a href="/new-post">New Post</a>
+				<a id="test">Signup</a>
+				{/*
+				<h2 class="-mt-5 color2 text-center">
+					<i class="text-md">create and share recipes</i>
+				</h2>
+				*/}
+			</div>
 			<slot/>
 		</div>
   	</body>
+<script>
+	import {loggedIn} from '../components/auth-store.js';
+
+  // Listen to changes in the store, and show/hide the dialog accordingly
+  loggedIn.subscribe(open => {
+    if (open) {
+		document.getElementById("test").innerHTML = "loggedin"
+    } else {
+		document.getElementById("test").innerHTML = "not loggedin"
+    }
+  })
+</script>
 </html>
