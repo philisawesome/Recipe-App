@@ -4,8 +4,20 @@ const postSchema = new mongoose.Schema({
     title: {
         type: String, 
 		required: true,
-        trim:true,
-        maxlength:30
+        trim: true,
+        maxlength: 30
+    },
+    ingredients: {
+        type: [String],
+        required: true, 
+		trim: true,
+        default: [],
+    },
+    instructions: {
+        type: [String],
+        required: true, 
+		trim: true,
+        default: [],
     },
     content: {
         type: String, 

@@ -120,17 +120,17 @@ export async function login (req, res){
     
        }
        //creates tokens
-        const access_token= createAccessToken({ id: user._id});
-        const refresh_token= createRefreshToken({ id: user._id});
+        const access_token = createAccessToken({ id: user._id});
+        const refresh_token = createRefreshToken({ id: user._id});
 
         res.cookie("refresh_token", refresh_token,{
-            httpOnly: true,
+            httpOnly: false,
             secure: node_env === "production",
             sameSite: node_env === "production" ? "strict" : "lax",
-            path: "/api/refresh_token",
-            maxAge: 30 * 24 * 60 * 60 *1000
-
+            path: "/",
+            maxAge: 30 * 24 * 60 * 60 * 1000
         });
+
         return res.status(200).json({
             msg:"Login successful",
             access_token,
@@ -143,40 +143,30 @@ export async function login (req, res){
             }
             
         });
-
-
-
-
-
-    }catch(err){
+    } catch(err){
         console.error(err);
         return res.status(500).json({error: "Server Error"});
     }
 }
 
 export async function logout(req, res){
-    try{
+    try {
         res.clearCookie("refresh_token",{
             httpOnly: true,
             secure: node_env === "production",
             sameSite: node_env === "production" ? "strict" : "lax",
-            path: "/api/refresh_token",
+            path: "/",
 
         });
         return res.status(200).json({msg:"Logged out successfully."});
-
-
-    } catch(err){
+    } catch(err) {
         console.error(err);
         return res.status(500).json({error:"Server error."});
     }
-
-
-
 }
 
 export async function generateAccessToken(req, res){
-    try{
+    try {
         //grabs cookie from browser
         const rf_token= req.cookies.refresh_token;
         if (!rf_token){

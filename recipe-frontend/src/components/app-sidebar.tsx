@@ -32,7 +32,7 @@ interface MenuLink {
 const MenuLinks: MenuLink[] = [
 	{
 		name: "Home",
-		link: "/index", 
+		link: "/", 
 	},
 	{
 		name: "Search",

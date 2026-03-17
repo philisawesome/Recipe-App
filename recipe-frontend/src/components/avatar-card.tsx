@@ -4,25 +4,27 @@ import {
 	AvatarFallback,
 } from "./ui/avatar"
 
-import { Button } from "./ui/button"
-
 import {
 	type User,
-	MockUser,
-} from "../../app/lib/utils"
+	NullUser,
+} from "./auth-store"
+
+export function ProfilePic(props: {user?: User}) {
+	return <Avatar className="m-2">
+		<AvatarImage src="" />
+		<AvatarFallback></AvatarFallback>
+	</Avatar>
+}
 
 export function AvatarCard(props: {
 	className?: string,
 	user?: User,
 }) {
 	let {className, user} = props
-	user = user || MockUser
+	user = user || NullUser
 
 	return <a href="/user" className={"flex items-center justify-start gap-2 " + className}>
-		<Avatar className="m-2">
-			<AvatarImage src="" />
-			<AvatarFallback>CN</AvatarFallback>
-		</Avatar>
+		<ProfilePic user={user}/>
 		<div className="text-left">
 			<p className="-mb-2">{user.username}</p>
 			<p><small>{user.name}</small></p>

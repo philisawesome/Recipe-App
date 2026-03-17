@@ -1,13 +1,14 @@
 "use client"
 
+import { redirect, login, type User } from "./auth-store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState, useRef, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from "axios"
+import { API_URL } from "./utils"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card"
 import { Button } from "./ui/button"
-import { type User } from "./utils"
 import {
   Form,
   FormControl,
@@ -82,23 +83,26 @@ export default function SignupForm() {
 	})
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		return alert("logging in")
-		axios.post('http://localhost:4000/api/auth/register', 
+		axios.post(`${API_URL}/auth/register`, 
 			{
 				username: values.username,
 				email: values.email,
 				password: values.password,
 				name: values.name,
+			},
+			{
+				withCredentials: true,
 			}
 		).then((res) => {
-			console.log(res)
 			const user: User = {
 				username: res.data.user.username,
 				name: res.data.user.name,
+				id: res.data.user.id,
 			}
-			//auth.login(res.data.access_token, user)
-			//navigate("/user/"+user.username)
+			login(res.data.access_token, user)
+			redirect.set(`/user?id=${user.id}`)
 		}).catch((e)=>{
+			console.log(e.response.data.error);
 			if (e.response && e.response.data.error) {
 				setDialogOpen(true)
 				setDialogText(e.response.data.error)

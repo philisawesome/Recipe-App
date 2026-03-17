@@ -11,18 +11,39 @@ function pagination(q, {defaultLimit = 9, maxLimit = 50}= {}){
 }
 
 export async function createPost(req, res){
+	const invalidArr = (a) => {
+		return !(Array.isArray(a) && a.length > 0)
+	}
+
     try {
-        const {title, content = '', images = []} = req.body || {};
-        if(!Array.isArray(images) || images.length === 0) {
-            return res.status(200).json({error:'Please add photo(s)'});
+        const {
+			title, 
+			content = '', 
+			images = [],
+			ingredients = [],
+			instructions = [],
+		} = req.body || {};
+
+        if (invalidArr(images)) {
+            return res.status(400).json({error:'Please add photo(s)'});
+        }
+
+        if(invalidArr(ingredients)) {
+            return res.status(400).json({error:'Please add instructions'});
+        }
+
+        if(invalidArr(instructions)) {
+            return res.status(400).json({error:'Please add instructions'});
         }
 
         const newPost = await Posts.create({
 			title,
             content,
             images,
+			ingredients,
+			instructions,
             user: req.user._id
-            });
+		});
 
         res.status(201).json({
             msg: 'Post created successfully.',
@@ -189,7 +210,6 @@ export async function getPost(req, res){
         res.status(200).json({
             post,
             commentsReturned: post.comments?.length || 0 
-
         });
     }catch(err){
         console.error(err)

@@ -38,14 +38,6 @@ body, .wrapper {
 	font-size: 2rem;
 }
 
-.color1 {
-	color: var(--color-1);
-}
-
-.color2 {
-	color: var(--color-2);
-}
-
 .post-color {
 	background-color: var(--post-color);
 }
@@ -54,7 +46,7 @@ body, .wrapper {
 	background-color: var(--navbar-color);
 }
 
-.navbar a {
+.nav-link {
 	color: var(--color-1);
 	align-self: center;
 	margin-left: 1rem;
@@ -64,13 +56,13 @@ body, .wrapper {
     transition: all 0.3s ease;
 }
 
-.navbar a:hover {
+.nav-link:hover {
 	color: var(--nav-hover-color);
 	cursor: pointer;
 }
 
 /* Underline animation from center */
-.navbar a::after {
+.nav-link::after {
 	content: '';
 	position: absolute;
 	bottom: 0;
@@ -83,12 +75,12 @@ body, .wrapper {
 	transition: transform 0.3s ease;
 }
 
-.navbar a:hover::after {
+.nav-link:hover::after {
 	transform: scaleX(1);
 }
 
 /* Click effect */
-.navbar a:active {
+.nav-link:active {
 	transform: scale(0.95);
 }
 
@@ -115,16 +107,10 @@ h3 {
 	}
 }
 
-
-/*
- *EB5E55
-3A3335
-D81E5B
-FDF0D5
-C6D8D3
- */
-
 @theme inline {
+	--color-1: #D8EFD3;
+	--color-2: #95D2B3;
+	--color-3: #55ad9b;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);

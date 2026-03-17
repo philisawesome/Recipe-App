@@ -1,10 +1,13 @@
+# Rebuild because script moves page files from dist instead of copying
+npm run build
+
 # Does not guarantee all files in dist are copied to S#
 # Assumptions about build files:
 # 	only one subdirectory, _astro containing only non-html files 
 # 	pages are .html files in dist/
 # 	no nested pages
 
-s3uri="s3://stovetop-recipe-app"
+s3uri="s3://stovetop.cc"
 # REPLACE DIST path to match locally
 dist="$HOME/Projects/Recipe-App/recipe-frontend/dist"
 

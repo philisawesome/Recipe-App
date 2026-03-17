@@ -1,9 +1,6 @@
 ---
 import "../styles/global.css";
-import { 
-	SidebarWrapper,
-} from "../components/app-sidebar"
-import { loggedIn } from "../components/auth-store"
+import { ProfilePic } from "../components/avatar-card"
 ---
 <!DOCTYPE html>
 <html>
@@ -12,37 +9,74 @@ import { loggedIn } from "../components/auth-store"
 		<link rel="preconnect" href="https://fonts.googleapis.com"/>
 		<link rel="preconnect" href="https://fonts.gstatic.com"/>
 		<link href="https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Marck+Script&display=swap" rel="stylesheet"/>
+		<script is:inline>
+			document.documentElement.dataset.auth = localStorage.getItem('token') != null ? "true" : "false"
+			document.documentElement.dataset.username = localStorage.getItem('username') 
+		</script>
+		<style is:inline>
+			[data-auth-required="true"] {
+			  display: none !important;
+			}
+			
+			html[data-auth="true"] [data-auth-required="true"] {
+			  display: block !important;
+			}
+			
+			html[data-auth="true"] [data-auth-required="false"] {
+			  display: none !important;
+			}
+			
+			[data-auth-required="false"] {
+			  display: block !important;
+			}
+  		</style>
 	</head>
 	<body>
 		{/* <SidebarWrapper client:load/> */}
 		<div class="z-2 pt-10">
 			<div class="absolute top-0 left-0 z-4 navbar w-screen flex justify-center">
 				<a href="/"><h1 class="title title-font text-center">Stovetop</h1></a>
-				<a href="/search">Search</a>
-				<a href="/user">Profile</a>
-				<a href="/login">Login</a>
-				<a href="/signup">Signup</a>
-				<a href="/new-post">New Post</a>
-				<a id="test">Signup</a>
-				{/*
-				<h2 class="-mt-5 color2 text-center">
-					<i class="text-md">create and share recipes</i>
-				</h2>
-				*/}
+				<a data-auth-required="false" class="nav-link" href="/login">Login</a>
+				<a data-auth-required="false" class="nav-link" href="/signup">Signup</a>
+				<a data-auth-required="true" class="nav-link" href="/new-post">New Post</a>
+				<a data-auth-required="true" class="nav-link" id="logout">Logout</a>
+
+				<div data-auth-required="true">
+					<a class="absolute block right-0 flex items-center" id="username-link">
+						<p class="text-white" id="username-text">yo</p>
+						<ProfilePic data-username="hi" client:load/>
+					</a>
+				</div>
 			</div>
 			<slot/>
 		</div>
+		<script is:inline>
+			const user = document.getElementById('username-text')
+			const userlink = document.getElementById('username-link')
+			if (user) {
+				user.textContent = localStorage.getItem('username')
+				userlink.href = `/user?id=${localStorage.getItem('userid')}`
+			}
+		</script>
   	</body>
 <script>
-	import {loggedIn} from '../components/auth-store.js';
+	import { loggedIn, logout, redirect } from "../components/auth-store"
+	const logoutBtn = document.getElementById('logout')
+	if (logoutBtn !== null) {
+		logoutBtn.addEventListener('click', () => {
+			logout()
+		})
+	}
 
-  // Listen to changes in the store, and show/hide the dialog accordingly
-  loggedIn.subscribe(open => {
-    if (open) {
-		document.getElementById("test").innerHTML = "loggedin"
-    } else {
-		document.getElementById("test").innerHTML = "not loggedin"
-    }
-  })
+	loggedIn.subscribe(a => {
+		document.documentElement.setAttribute('data-auth', a ? 'true' : 'false')
+	})
+
+	redirect.subscribe((link) => {
+		if (link != '') {
+			redirect.set('')
+			return window.location.replace(link);
+		}
+	})
 </script>
 </html>

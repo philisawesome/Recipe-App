@@ -5,7 +5,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import config from './config.js';
+import { mongoURI, port } from './config.js';
 import authRoutes from './routes/authRoutes.js';
 import profRoutes from './routes/userRoutes.js';
 import postRoutes from './routes/postRoutes.js';
@@ -22,7 +22,6 @@ app.use(express.json());
 app.use(cookieParser()); 
 
 app.get('/healthz', (req, res) => res.send('healthy'));
-
 
 //Routes
 app.get('/', (req,res)=>{
@@ -43,10 +42,10 @@ app.use('/api', commentRoutes);
 
 export async function connectDatabase() {
 	//connecting to mongo
-	await mongoose.connect(config.mongoURI).then(()=>{
+	await mongoose.connect(mongoURI).then(()=>{
 		console.log("Connected to MongoDB");
-		app.listen(config.port,()=>{
-			console.log(`RECIPE APP on http://localhost:${config.port}`);
+		app.listen(port,()=>{
+			console.log(`RECIPE APP on http://localhost:${port}`);
 		})
 	})
 }

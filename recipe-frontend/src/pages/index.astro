@@ -1,9 +1,13 @@
 ---
 import AppLayout from "../layouts/AppLayout.astro"
 import Post from "../components/post-thumbnail.astro"
+import { Searchbar } from "../components/search"
 ---
 <AppLayout>
-	<div class="w-full grid grid-cols-1 
+	<Searchbar placeholder="share and discover recipes with stovetop" client:load/>
+	<div class="
+		mt-3
+		w-full grid grid-cols-1 
 		gap-3
 		md:grid-cols-2 md:gap-1
 		justify-items-center

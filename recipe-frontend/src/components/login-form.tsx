@@ -1,4 +1,6 @@
 import axios from "axios"
+import { API_URL } from "./utils"
+
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -15,7 +17,7 @@ import {
 	FormMessage,
 } from "./ui/form"
 import { Input } from "./ui/input"
-import { loggedIn, login, type User } from "./auth-store"
+import { redirect, login, type User } from "./auth-store"
  
 const formSchema = z.object({
 	username: z.string(),
@@ -35,19 +37,22 @@ function LoginForm() {
   	})
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		axios.post('http://localhost:4000/api/auth/login', 
+		axios.post(`${API_URL}/auth/login`, 
 			{
 				username: values.username,
 				password: values.password,
+			},
+			{
+				withCredentials: true,
 			}
 		).then((res) => {
 			const user: User = {
 				username: res.data.user.username,
 				name: res.data.user.name,
+				id: res.data.user._id,
 			}
-
 			login(res.data.access_token, user)
-			//navigate('/user/' + user.username)
+			redirect.set(`/user?id=${user.id}`)
 		}).catch((e) => {
 			console.log(e.response.data.error);
 			setError(e.response.data.error)

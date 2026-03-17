@@ -5,12 +5,4 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export type User = {
-	username: string
-	name: string
-}
-
-export const MockUser: User = {
-	username: 'Linecook',
-	name: 'Link',
-}
+export const API_URL = import.meta.env.DEV ? 'http://localhost:4000/api' : '???'

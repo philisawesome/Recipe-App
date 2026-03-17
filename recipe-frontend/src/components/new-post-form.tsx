@@ -1,8 +1,13 @@
 import { useState, useRef, useEffect } from "react"
+import { redirect, loggedIn } from './auth-store'
+import { useStore } from '@nanostores/react'
 import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 import { Textarea } from "./ui/textarea"
-import axios from "axios"
+import List from "./list"
+
+import { api } from "./auth-store"
+import { API_URL } from "./utils"
 
 import {
   Form,
@@ -39,12 +44,29 @@ const FormSchema = z.object({
 export default function NewPost() {
 	const [photo, setPhoto] = useState<File | null>()
 	const fileInputRef = useRef<any>(null);
+	const [ingreds, setIngreds] = useState<string[]>([
+		"carrots",
+		"broccoli",
+		"chicken",
+	])
+	const [steps, setSteps] = useState<string[]>([
+		"First you gotta boil the chickn",
+		"Then cut the chicken",
+		"Serve with rice",
+	])
+	const $loggedIn = useStore(loggedIn)
 
 	useEffect(() => {
 		if (fileInputRef.current) {
 			fileInputRef.current.value = '';
 		}
 	}, [])
+
+	useEffect(() => {
+		if (!$loggedIn) {
+			redirect.set('/login')
+		}
+	}, [$loggedIn])
 
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
@@ -55,18 +77,16 @@ export default function NewPost() {
 		},
 	})
 
-	function validateAndPost(data: any) {
-		handlePost(data)
-	}
-
 	function handlePost(formData: z.infer<typeof FormSchema>) {
 		// Validate and send POST request here
 		try {
-			axios.post('http://localhost:4000/api/posts',
+			api.post(`${API_URL}/posts`,
 				{
 					file: photo,
 					title: formData.recipeTitle,
 					content: formData.summary,
+					ingredients: ingreds,
+					instructions: steps,
 				},
 				{
 					headers: { 
@@ -82,8 +102,9 @@ export default function NewPost() {
 		
 
 	return <div 
-		className="border-2 w-lg 
-		p-4 rounded-lg border-solid "
+		className="border-2 w-lg gap-4
+		p-4 rounded-lg border-solid 
+		flex flex-col items-center"
 	>
 		<h1>Create a new recipe</h1>
 
@@ -91,7 +112,7 @@ export default function NewPost() {
 		<Form {...form}>
 			<form 
 				encType="multipart/form-data"
-				className="mt-4 flex flex-col gap-7"
+				className="mt-4 flex flex-col w-full gap-7"
 				onSubmit={form.handleSubmit(handlePost)}>
 				<FormField
 					control={form.control}
@@ -138,12 +159,26 @@ export default function NewPost() {
 					)}
 				/>
 
+				<List 
+					title="Ingredients"
+					items={ingreds}
+					setItems={setIngreds}
+				/>
+
+				<List 
+					title="Instructions"
+					items={steps}
+					setItems={setSteps}
+					ordered={true}
+					textbox={true}
+				/>
+
 				<FormField
 					control={form.control}
 					name="summary"
 					render={({field}) => (
 						<FormItem>
-							<FormLabel>Summary</FormLabel>
+							<FormLabel>Description (optional)</FormLabel>
 							<FormControl>
 								<Textarea 
 									className="resize-none"

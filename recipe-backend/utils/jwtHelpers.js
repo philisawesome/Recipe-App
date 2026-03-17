@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { accessTokenSecret, refreshTokenSecret } from "../config.js";
 
 export function createAccessToken(payload){
-    return jwt.sign(payload, accessTokenSecret, {expiresIn:"1d"});
+    return jwt.sign(payload, accessTokenSecret, {expiresIn:"15m"});
 }
 
 export function createRefreshToken(payload){
