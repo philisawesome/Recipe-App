@@ -1,20 +1,17 @@
 ---
 import AppLayout from "../layouts/AppLayout.astro"
 import { Searchbar } from "../components/search"
-import Post from "../components/post-thumbnail.astro"
 import UserProfileBar from "../components/user-profilebar"
+import { UserPosts } from "../components/user-profilebar"
 ---
 <AppLayout>
 	<div class="text-wrap flex flex-col items-center gap-3">
 		<div class="md:w-xl flex flex-col gap-3 pb-5">
 			<UserProfileBar client:load/>
-			<Searchbar placeholder="search Link's posts" client:load/>
+			<Searchbar placeholder="search recipes" client:load/>
 		</div>
 
-		<div class="w-fit grid grid-cols-1 md:grid-cols-2 self-center gap-1">
-			<Post/>
-			<Post/>
-		</div>
+		<UserPosts client:load/>
 	</div>
 </AppLayout>
 

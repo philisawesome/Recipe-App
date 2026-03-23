@@ -100,7 +100,7 @@ export default function SignupForm() {
 				id: res.data.user.id,
 			}
 			login(res.data.access_token, user)
-			redirect.set(`/user?id=${user.id}`)
+			redirect.set(`/profile?user=${user.username}`)
 		}).catch((e)=>{
 			console.log(e.response.data.error);
 			if (e.response && e.response.data.error) {

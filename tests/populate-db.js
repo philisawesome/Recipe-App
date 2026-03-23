@@ -8,7 +8,7 @@ import { mongoURI } from "../recipe-backend/config.js"
 import User from "../recipe-backend/models/userModel.js";
 import Post from "../recipe-backend/models/postModel.js";
 
-const url = "http://stovetop.cc"
+const url = "http://stovetop.cc/content"
 
 const mockUsers = [
   {

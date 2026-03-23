@@ -9,7 +9,11 @@ import {
 	CarouselPrevious,
 } from "../components/ui/carousel"
 
-import { api } from "./auth-store"
+import { 
+	type User,
+	NullUser,
+	api,
+} from "./auth-store"
 import { API_URL } from "./utils"
 
 export type PostData = {
@@ -40,13 +44,13 @@ export default function RecipePost() {
 	const [numLikes, setNumLikes] = useState(0)
 	const [liked, setLiked] = useState(false)
 
+	const [user, setUser] = useState<User>(NullUser)
 	const [postData, setPostData] = useState<PostData>(defaultData)
 
 	useEffect(() => {
 		// Fetch and set numlikes/liked here
 		setNumLikes(69)
 		setLiked(false)
-
 
 		let urlSearchParams = new URLSearchParams(window.location.search);
 		let params = Object.fromEntries(urlSearchParams.entries());
@@ -56,22 +60,29 @@ export default function RecipePost() {
 				throw "Expected post id"
 			}
 
-			api.get(`${API_URL}/post/${id}`,
-				{
-					headers: { 
-						'Authorization': 'Bearer ' + localStorage.getItem('token')
-					}
-				}
-			).then((res) => {
+			api.get(`${API_URL}/post/${id}`)
+			.then((res) => {
 				const post = res.data.post
 				setPostData({
 					...postData,
 					title: post.title,
 					author: post.user.username,
-					image: "https://stovetop-recipe-app.s3.us-west-1.amazonaws.com/content/" + post.images[0],
+					image: post.images[0],
 					instructions: post.instructions,
 					ingredients: post.ingredients,
 				})
+
+				api.get(`${API_URL}/profile/${res.data.post.user._id}`)
+
+				.then((res) => {
+					setUser({
+						username: res.data.user.username,
+						name: res.data.user.name,
+						id: res.data.user._id
+					})
+				})
+			}).catch((e) => {
+				console.log(e)
 			})
 		} catch (e) {
 
@@ -80,16 +91,16 @@ export default function RecipePost() {
 
 	return <div className="">
 		<h1>{postData.title}</h1>
-		<AvatarCard className=""/>
+		<AvatarCard user={user}/>
 		<div className="flex items-center gap-2 mb-5">
 			<Toggle onPressedChange={ (b) => {setLiked(b)} }>
 				Like
 			</Toggle>
 			<p>{numLikes + (liked?1:0)} likes</p>
 		</div>
-		<img className="w-md object-contain" src={postData.image}/>
-		<div className="w-full justify-between flex items-center">
-			<div className="rounded-sm w-fit p-2">
+		<img className="w-md object-contain" src={postData.image || undefined}/>
+		<div className="w-full justify-between flex flex-col p-2 mt-2 gap-3">
+			<div className="rounded-sm w-fit">
 				<h2>Ingredients</h2>
 				<ul className="">
 				  {postData.ingredients.map((step, index) => (

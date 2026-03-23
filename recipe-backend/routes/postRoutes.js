@@ -17,15 +17,15 @@ router.route('/posts')
     .get(auth, postCtrl.getPosts);
 router.route('/post/:id')
     .patch(auth, postCtrl.updatePost)
-    .get(auth, postCtrl.getPost)
+    .get(postCtrl.getPost)
     .delete(auth, postCtrl.deletePost);
 
-router.patch('/post/:id/like', postCtrl.likePost);
+router.patch('/post/:id/like', auth, postCtrl.likePost);
 router.patch('/post/:id/unlike', auth, postCtrl.unLikePost);
 
-router.get('/userPosts/:id', auth, postCtrl.getUserPosts);
+router.get('/userPosts/:id', postCtrl.getUserPosts);
 
-router.get('/postDiscover', auth , postCtrl.getPostDiscover);
+router.get('/postDiscover', postCtrl.getPostDiscover);
 
 router.patch('/savePost/:id', auth, postCtrl.savePost);
 router.patch('/unsavePost/:id', auth, postCtrl.unSavePost);

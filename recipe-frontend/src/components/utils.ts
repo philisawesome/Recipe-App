@@ -6,3 +6,4 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const API_URL = import.meta.env.DEV ? 'http://localhost:4000/api' : '???'
+export const S3_URL = "http://stovetop.cc"

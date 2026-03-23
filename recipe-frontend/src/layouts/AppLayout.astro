@@ -54,8 +54,9 @@ import { ProfilePic } from "../components/avatar-card"
 			const user = document.getElementById('username-text')
 			const userlink = document.getElementById('username-link')
 			if (user) {
-				user.textContent = localStorage.getItem('username')
-				userlink.href = `/user?id=${localStorage.getItem('userid')}`
+				const username = localStorage.getItem('username')
+				user.textContent = username
+				userlink.href = `/profile?user=${username}`
 			}
 		</script>
   	</body>

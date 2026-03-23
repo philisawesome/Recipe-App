@@ -7,7 +7,8 @@ router.get('/search', auth, userCtrl.searchUser);
 
 router.get('/profile/me', auth, userCtrl.getMyProfile);
 
-router.get('/profile/:id', auth, userCtrl.getTheirProfile);
+router.get('/profile/:id', userCtrl.getTheirProfile);
+router.get('/username/:username', userCtrl.getTheirProfileByUsername);
 
 router.post('/profile/:id/follow', auth,userCtrl.followUser);
 router.delete('/profile/:id/unfollow', auth, userCtrl.unfollowUser);

@@ -48,6 +48,26 @@ export async function getMyProfile(req, res) {
 }
 
 /**
+ * GET /api/username/:username
+ */
+export async function getTheirProfileByUsername(req, res) {
+	try {
+		const user = await User
+      	.findOne({'username' : req.params.username})
+      	.lean();
+
+    	if (!user) {
+			return res.status(404).json({ error: "Requested user is not found" });
+		}
+
+		return res.json({ user });
+	} catch (err) {
+		console.error(err);
+		return res.status(500).json({ error: "Server Error" });
+	}
+}
+
+/**
  * GET /api/profile/:id
  */
 export async function getTheirProfile(req, res) {
@@ -259,6 +279,7 @@ export default {
   searchUser:searchUser,
   getMyProfile:getMyProfile,
   getTheirProfile:getTheirProfile,
+  getTheirProfileByUsername:getTheirProfileByUsername,
   followUser:followUser,
   unfollowUser:unfollowUser,
   getFollowers:getFollowers,

@@ -165,7 +165,6 @@ export async function getUserPosts(req, res){
         const {page, limit, skip} = pagination(req.query);
         if(!mongoose.isValidObjectId(req.params.id)){
             return res.status(400).json({error:'Invalid user id.'});
-
         }
 
         const posts = await Posts.find({user: req.params.id})
