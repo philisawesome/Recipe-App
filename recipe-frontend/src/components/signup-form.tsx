@@ -58,7 +58,7 @@ const formSchema = z
         message: "Must include name",
       })
       .regex(/^[a-zA-Z]{1,12}$/, {
-        message: "Name must be 1-12 chars (a-z only).",
+        message: "Name must be 1-12 chars.",
       }),
     password: z
       .string()
