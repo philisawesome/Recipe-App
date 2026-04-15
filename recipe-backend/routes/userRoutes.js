@@ -3,7 +3,7 @@ const router = express.Router()
 import auth from "../middleware/auth.js"
 import userCtrl from "../controllers/userCtrl.js"
 
-router.get('/search', auth, userCtrl.searchUser);
+router.get('/search', userCtrl.searchUser);
 
 router.get('/profile/me', auth, userCtrl.getMyProfile);
 
