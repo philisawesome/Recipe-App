@@ -24,7 +24,7 @@ router.patch('/post/:id/like', auth, postCtrl.likePost);
 router.patch('/post/:id/unlike', auth, postCtrl.unLikePost);
 
 router.get('/userPosts/:id', postCtrl.getUserPosts);
-
+router.get('/searchPost', postCtrl.searchPost);
 router.get('/postDiscover', postCtrl.getPostDiscover);
 
 router.patch('/savePost/:id', auth, postCtrl.savePost);

@@ -2,7 +2,9 @@ import Posts from "../models/postModel.js";
 import Comments from "../models/commentModel.js";
 import Users from "../models/userModel.js";
 import mongoose from "mongoose";
-
+function escapeRegex(str=""){
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 function pagination(q, {defaultLimit = 9, maxLimit = 50}= {}){
     const page = Math.max(parseInt(q.page) || 1 , 1 );
     const limit = Math.min(Math.max(parseInt(q.limit) || defaultLimit, 1), maxLimit);
@@ -333,6 +335,27 @@ export async function getSavedPost(req,res){
 
 
 }
+export async function searchPost(req, res){
+    try{
+    const raw = (req.query.q ?? '');
+    if (!raw) return res.json({posts: []});
+    const q = escapeRegex(raw.slice(0,30));
+    const limit = Math.min(Number(req.query.limit)|| 10,20);
+
+    const regex = new RegExp('^'+q, 'i')
+
+    const posts = await Posts.find({
+        $or: [{title: regex}, {content:regex}, {ingredients:regex}]
+            })
+        .limit(limit)
+        .lean();
+        return res.status(200).json({posts});
+    }catch(err){
+        console.error(err);
+        res.status(500).json({error: 'Server Error'});
+    }
+
+}
 
 export default {
 	createPost:createPost, 
@@ -347,4 +370,5 @@ export default {
     savePost:savePost, 
     unSavePost:unSavePost,
     getSavedPost:getSavedPost,
+    searchPost:searchPost,
 }
