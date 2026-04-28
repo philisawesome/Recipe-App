@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Rebuild because script moves page files from dist instead of copying
 npm run build
 
@@ -31,3 +33,6 @@ done
 
 # Adds script files in _astro directory
 aws s3 cp "${dist}/_astro" "${s3uri}/_astro" --recursive
+
+# Update Cloudfront
+aws cloudfront create-invalidation --distribution-id E10KV1N4MNRKYB --paths "/*" 
