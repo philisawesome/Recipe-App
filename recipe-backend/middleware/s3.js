@@ -5,13 +5,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { node_env } from "../config.js"
 
 const s3 = new S3Client({
-	region: 'us-west-1',
-	credentials: fromEnv(),
+	region: process.env.AWS_REGION,
+	credentials:{
+		accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+		secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+	},
 })
 
 async function uploadFile(file, fileuid) {
 	const res = await s3.send(new PutObjectCommand({
-		Bucket: "stovetop-recipe-app",
+		Bucket: "stovetop.cc",
 		Body: file.buffer,
 		ContentType: file.mimetype,
 		ContentEncoding: file.encoding,
