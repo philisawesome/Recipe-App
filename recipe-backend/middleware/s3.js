@@ -54,6 +54,7 @@ export async function uploadPhotoS3(req, res, next) {
 		req.body.images = [fileuid]
 		next()
 	} catch (e) {
+		console.error(e)
 		res.status(500).json({error: e})
 	}
 }
