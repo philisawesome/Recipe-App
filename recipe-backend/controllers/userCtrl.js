@@ -50,6 +50,7 @@ export async function getMyProfile(req, res) {
 /**
  * GET /api/username/:username
  */
+// also optionally returns if you're following them
 export async function getTheirProfileByUsername(req, res) {
 	try {
 		const user = await User
@@ -60,7 +61,18 @@ export async function getTheirProfileByUsername(req, res) {
 			return res.status(404).json({ error: "Requested user is not found" });
 		}
 
-		return res.json({ user });
+		let following = false
+		if (req.query.follower_username) {
+			const follower = await User
+			.findOne({
+				'username': req.query.follower_username,
+				'following': {$elemMatch: { $eq: user._id}},
+			}).lean();
+
+			if (follower) following = true;
+		}
+
+		return res.json({ user , following: following });
 	} catch (err) {
 		console.error(err);
 		return res.status(500).json({ error: "Server Error" });

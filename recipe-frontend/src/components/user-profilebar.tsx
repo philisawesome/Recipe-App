@@ -10,7 +10,7 @@ import {
 	my_username,
 	api
 } from "./auth-store"
-import { API_URL } from "./utils"
+import { API_URL, getURLParams } from "./utils"
 
 export default function UserProfileBar(props: {}) {
 	const [followed, setFollowed] = useState(false)
@@ -19,36 +19,72 @@ export default function UserProfileBar(props: {}) {
 	const $my_username = useStore(my_username)
 
 	useEffect(() => {
-		let urlSearchParams = new URLSearchParams(window.location.search);
-		let params = Object.fromEntries(urlSearchParams.entries());
+		let params = getURLParams()
 
-		let userid: string;
-		api.get(`${API_URL}/username/${params.user}`)
+		api.get(`${API_URL}/username/${params.user}`, {
+			params: {follower_username: $my_username}
+		})
 		.then((res) => {
 			setUser({
 				username: res.data.user.username,
 				name: res.data.user.name,
 				id: res.data.user._id
 			})
-			userid = res.data.user._id
+			setFollowed(res.data.following)
 		}).catch((e) => {
 			console.log(e.response.data.error);
 		})
 	}, [])
 
-	return <div className="flex items-center gap-3">
+	return <div className="flex items-center gap-5">
 		<AvatarCard user={user}/>
-		<Toggle onPressedChange={(b) => {setFollowed(b)} }>
-			{followed ? 'Unfollow' : 'Follow'}
-		</Toggle>
-		{$loggedIn && $my_username == user.username && <Button variant="outline" onClick={() => {
-			async function goHome() {
-				//await navigate("/")
-			}
-			//goHome().then(()=>{auth.logout()})
-		}}>
-			Logout
-		</Button>}
+		{($loggedIn && $my_username === user.username) && 
+
+			<Button variant="outline" onClick={() => {
+				async function goHome() {
+					//await navigate("/")
+				}
+				//goHome().then(()=>{auth.logout()})
+			}}>
+				Logout
+			</Button>
+		|| 
+			<Button
+				variant="outline"
+				onClick={() => {
+					if (!followed) {
+						api.post(`${API_URL}/profile/${user.id}/follow`, {},
+						{
+							headers: {
+								'Authorization': `Bearer ${localStorage.getItem('token')}`,
+							}
+						})
+						.then((res) => {
+							if (res.status === 200) {
+								setFollowed(!followed)
+							}
+						}).catch((e) => {
+							console.log(e);
+						})
+					} else {
+						api.delete(`${API_URL}/profile/${user.id}/unfollow`, {
+							headers: {
+								'Authorization': `Bearer ${localStorage.getItem('token')}`,
+							}
+						})
+						.then((res) => {
+							if (res.status === 200) {
+								setFollowed(!followed)
+							}
+						}).catch((e) => {
+							console.log(e);
+						})
+					}
+				}}
+			>
+				{followed ? 'Unfollow' : 'Follow'}
+			</Button>
+		}
 	</div>
 }
 
@@ -56,8 +92,7 @@ export function UserPosts() {
 	const [postIds, setPostIds] = useState<string[]>([])
 
 	useEffect(() => {
-		let urlSearchParams = new URLSearchParams(window.location.search);
-		let params = Object.fromEntries(urlSearchParams.entries());
+		const params = getURLParams()
 
 		let userid: string;
 		api.get(`${API_URL}/username/${params.user}`)
@@ -76,6 +111,7 @@ export function UserPosts() {
 		{postIds.map((id: string, key: any) => {
 			return <a key={key} href={`/post?id=${id}`} className="post-color w-[95vw] h-[95vw] 
 				 md:w-[400px] md:h-[400px] block">
+				 <div></div>
 			</a>
 		})}
 	</div>

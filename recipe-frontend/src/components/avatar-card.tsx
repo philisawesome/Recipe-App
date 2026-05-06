@@ -28,11 +28,11 @@ export function AvatarCard(props: {
 	let {className, user} = props
 	user = user || NullUser
 
-	return <a href={`/profile?user=${user.username}`} className={"flex items-center justify-start gap-2 " + className}>
+	return <a href={`/profile?user=${user.username}`} className={"flex items-center justify-start gap-4 " + className}>
 		<ProfilePic user={user}/>
-		<div className="text-left">
-			<p className="-mb-2">{user.username}</p>
-			<p><small>{user.name}</small></p>
+		<div className="text-left flex flex-col gap-0">
+			<p className="-m-1">{user.username}</p>
+			{user.name && <p className="-m-1"><small>{user.name}</small></p>}
 		</div>
 	</a>
 }

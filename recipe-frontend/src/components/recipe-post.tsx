@@ -14,7 +14,7 @@ import {
 	NullUser,
 	api,
 } from "./auth-store"
-import { API_URL } from "./utils"
+import { API_URL, getURLParams } from "./utils"
 
 export type PostData = {
 	author: string
@@ -52,8 +52,8 @@ export default function RecipePost() {
 		setNumLikes(69)
 		setLiked(false)
 
-		let urlSearchParams = new URLSearchParams(window.location.search);
-		let params = Object.fromEntries(urlSearchParams.entries());
+		const params = getURLParams()
+
 		try {
 			let id = params.id
 			if (id === undefined) {
@@ -98,7 +98,7 @@ export default function RecipePost() {
 			</Toggle>
 			<p>{numLikes + (liked?1:0)} likes</p>
 		</div>
-		<img className="w-md object-contain" src={postData.image || undefined}/>
+		<img alt="recipe" className="w-md object-contain" src={postData.image || undefined}/>
 		<div className="w-full justify-between flex flex-col p-2 mt-2 gap-3">
 			<div className="rounded-sm w-fit">
 				<h2>Ingredients</h2>

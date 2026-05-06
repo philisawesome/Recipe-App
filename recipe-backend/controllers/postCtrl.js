@@ -197,6 +197,7 @@ export async function getPost(req, res){
         const commentLimit = Math.min(parseInt(req.query.commentsLimit) || 10, 50);
 
         const post =  await Posts.findById(req.params.id)
+        .populate('user')
         .populate('user likes', 'avatar username ')
         .populate({
             path:'comments',
@@ -222,7 +223,7 @@ export async function getPost(req, res){
 //random post
 export async function getPostDiscover (req, res){
     try {
-        const exclude = [...(req.user.following || [] ), req.user._id];
+        const exclude = req.user ? [...(req.user.following || [] ), req.user._id] : [];
         const size = parseInt(req.query.num || '8' );
 
         const posts = await Posts.aggregate([
