@@ -51,8 +51,7 @@ export async function uploadPhotoS3(req, res, next) {
 			return res.status(s3res.statusCode).json({error: s3res})
 		}
 
-		req.body.images = [fileuid]
-		next()
+req.body.images = [`https://d8c4belvva8tv.cloudfront.net/content/${fileuid}`]		next()
 	} catch (e) {
 		console.error(e)
 		res.status(500).json({error: e})
