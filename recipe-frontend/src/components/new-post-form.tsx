@@ -35,7 +35,9 @@ const FormSchema = z.object({
 	recipeTitle: z.string().min(2, {
 		message: "Recipe name must be at least 2 characters.",
 	}),
-	photo: z.any(),
+	photo: z.any().refine(val => val instanceof File, {
+		message: "Please add a photo",
+	}),
 	summary: z.string().max(200, {
 		message: "Summary can't be more than 200 characters",
 	}),
@@ -80,6 +82,8 @@ export default function NewPost() {
 	function handlePost(formData: z.infer<typeof FormSchema>) {
 		// Validate and send POST request here
 		try {
+			console.log(photo)
+
 			api.post(`${API_URL}/posts`,
 				{
 					file: photo,
@@ -150,6 +154,7 @@ export default function NewPost() {
 								onChange={(e) => {
 									if (e.target.files && e.target.files.length > 0) {
 										setPhoto(e.target.files[0])
+										form.setValue("photo", e.target.files[0])
 									}
 							}}/>
 

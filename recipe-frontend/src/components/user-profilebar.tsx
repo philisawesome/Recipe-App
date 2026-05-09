@@ -11,6 +11,9 @@ import {
 	api
 } from "./auth-store"
 import { API_URL, getURLParams } from "./utils"
+import type PostThumbnail from "./post-thumbnail.tsx"
+import Post from "./post-thumbnail.tsx"
+
 
 export default function UserProfileBar(props: {}) {
 	const [followed, setFollowed] = useState(false)
@@ -89,7 +92,7 @@ export default function UserProfileBar(props: {}) {
 }
 
 export function UserPosts() {
-	const [postIds, setPostIds] = useState<string[]>([])
+	const [postIds, setPostIds] = useState<PostThumbnail[]>([])
 
 	useEffect(() => {
 		const params = getURLParams()
@@ -101,18 +104,23 @@ export function UserPosts() {
 			api.get(`${API_URL}/userPosts/${userid}`)
 			.then((res) => {
 				setPostIds(res.data.posts.map((m: any) => {
-					return m._id
+					return{postId: m._id, imageUrl: m.images[0]}
 				}))
 			})
 		})
 	}, [])
 
 	return <div className="w-fit grid grid-cols-1 md:grid-cols-2 self-center gap-1">
-		{postIds.map((id: string, key: any) => {
-			return <a key={key} href={`/post?id=${id}`} className="post-color w-[95vw] h-[95vw] 
-				 md:w-[400px] md:h-[400px] block">
-				 <div></div>
-			</a>
-		})}
+				{postIds.map((p,id)=>{
+					return <Post key={id}
+						postId = {p.postId}
+						imageUrl = {p.imageUrl}>
+					</Post>
+				})
+				}
+
+				
+			
+
 	</div>
 }
