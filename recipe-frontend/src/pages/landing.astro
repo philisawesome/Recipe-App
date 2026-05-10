@@ -1,0 +1,139 @@
+---
+import AppLayout from "../layouts/AppLayout.astro"
+import { AuthBasedPostsFeed } from "../components/post-feed"
+import { Searchbar } from "../components/search"
+
+---
+<style>
+	.tomato, .onion {
+		position: absolute;
+		top: -3rem;
+		visibility: hidden;
+		z-index: -1;
+	}
+
+	.tomato {
+		left: -10rem;
+	}
+	.onion {
+		right: -10rem;
+	}
+
+	.tomato.rolled-in {
+	  visibility: visible;
+	  animation: roll-in 1.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+	}
+
+	.onion.rolled-in {
+	  visibility: visible;
+	  animation: roll-in-2 1.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+	}
+
+	@keyframes roll-in {
+	  from {
+		transform: translateX(-30vw) rotate(0deg);
+	  }
+	  to {
+		transform: translateX(0px) rotate(720deg);
+	  }
+	}
+
+	@keyframes roll-in-2 {
+	  from {
+		transform: translateX(30vw) rotate(0deg);
+	  }
+	  to {
+		transform: translateX(0px) rotate(-720deg);
+	  }
+	}
+
+	.red {
+		color: var(--red-1);
+	}
+	.blue {
+		color: var(--dark-blue-1);
+	}
+	.green {
+		color: var(--green-1);
+	}
+
+	.card {
+		width: 100%;
+		background-color: var(--beige-1);
+		padding: 1rem;
+		border-radius: 2rem;
+		display: flex;
+		align-items: center;
+		position: relative;
+		gap: 2rem;
+	}
+
+	.measurement {
+		text-wrap: nowrap;
+	}
+
+	.egg {
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
+	}
+</style>
+<AppLayout>
+	<div class="flex flex-col items-center justify-center w-full">
+		<div class="w-[70%] flex flex-col gap-[8rem] relative">
+			<h1>a <span class="green">cookbook</span> for the internet</h1>
+
+			<div class="self-end text-right card">
+				<p class="measurement">1 cup</p>
+				<img class="onion" src="/onion.svg" width="200px"/>
+				<h2>
+					<span class="red">create recipes</span> for your chocolate chip cookies and cookoff-winning chili
+				</h2>
+			</div>
+
+			<div class="card">
+				<p class="measurement">2 tsp</p>
+				<img class="tomato" src="/tomato.svg" width="200px"/>
+				<h2>
+					<span class="blue">discover new dishes</span> to spice up your kitchen
+
+				</h2>
+			</div>
+
+			<div class="card">
+				<p class="measurement">2 tsp</p>
+				<img class="" src="/wok-down.svg" width="200px"/>
+				<h2>
+					<span class="blue">follow</span> your favorite cooks
+
+				</h2>
+			</div>
+			<p>start cooking</p>
+
+			<div class="relative">
+			<img src="/egg.svg" class="egg"/>
+			<img src="/egg-glimmer.svg" class="absolute left-0 bottom-0"/>
+			</div>
+		</div>
+	</div>
+</AppLayout>
+
+<script>
+	function newObserver(classname: string) {
+		return new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+				  entry.target.classList.add(classname);
+				}
+			})
+		  },
+		  { threshold: 0.4 }
+		);
+	}
+
+	newObserver('rolled-in').observe(document.querySelector('.tomato'));
+	newObserver('rolled-in').observe(document.querySelector('.onion'));
+</script>
