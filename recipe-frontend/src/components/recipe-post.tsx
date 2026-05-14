@@ -8,7 +8,7 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from "../components/ui/carousel"
-
+import { Skeleton } from "../components/ui/skeleton"
 import { 
 	type User,
 	NullUser,
@@ -40,12 +40,22 @@ const defaultData: PostData = {
 	ingredients: [""]
 }
 
+function UseLoading() {
+	const [loading, setLoading] = useState(false)
+	const egg = (<div>{loading && <img id="egg" className="absolute" alt="spinning egg" src="/egg.svg" width="200px"/>}</div>)
+	return [setLoading, egg]
+}
+
 export default function RecipePost() {
 	const [numLikes, setNumLikes] = useState(0)
 	const [liked, setLiked] = useState(false)
 
 	const [user, setUser] = useState<User>(NullUser)
 	const [postData, setPostData] = useState<PostData>(defaultData)
+
+	//const [loading, egg] = UseLoading();
+
+	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
 		// Fetch and set numlikes/liked here
@@ -80,6 +90,7 @@ export default function RecipePost() {
 						name: res.data.user.name,
 						id: res.data.user._id
 					})
+					setLoading(false)
 				})
 			}).catch((e) => {
 				console.log(e)
@@ -90,31 +101,41 @@ export default function RecipePost() {
 	}, [])
 
 	return <div className="">
-		<h1>{postData.title}</h1>
+		<h1>{loading ? <Skeleton className="h-10 w-[400px] rounded-full" /> : postData.title}</h1>
 		<AvatarCard user={user}/>
 		<div className="flex items-center gap-2 mb-5">
 			<Toggle onPressedChange={ (b) => {setLiked(b)} }>
 				Like
 			</Toggle>
-			<p>{numLikes + (liked?1:0)} likes</p>
+			<div>{numLikes + (liked?1:0)} likes</div>
 		</div>
-		<img alt="recipe" className="w-md object-contain" src={postData.image || undefined}/>
+
+		{ postData.image && !loading
+			? <img alt="recipe" className="w-md object-contain" src={postData.image }/> 
+			: <Skeleton className="h-[200px] w-md rounded-xl" />}
+
 		<div className="w-full justify-between flex flex-col p-2 mt-2 gap-3">
 			<div className="rounded-sm w-fit">
 				<h2>Ingredients</h2>
-				<ul className="">
-				  {postData.ingredients.map((step, index) => (
-					<li key={index} >{step}</li>
-				  ))}
-				</ul>
+				{loading 
+					? <Skeleton className="h-10 w-md rounded-full" />
+					: <ul className="">
+					  {postData.ingredients.map((step, index) => (
+						<li key={index} >{step}</li>
+					  ))}
+					</ul> 
+				}
 			</div>
 			<div>
 				<h2>Instructions</h2>
-				<ol className="list-decimal">
-				  {postData.instructions.map((step, index) => (
-					<li key={index} >{step}</li>
-				  ))}
-				</ol>
+				{loading 
+					? <Skeleton className="h-10 w-md rounded-full" />
+					: <ol className="list-decimal">
+						  {postData.instructions.map((step, index) => (
+							<li key={index} >{step}</li>
+						  ))}
+					  </ol>
+				}
 			</div>
 		</div>
 	</div>

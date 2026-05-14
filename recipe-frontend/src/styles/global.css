@@ -1,11 +1,22 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+#egg:hover {
+	animation: spin 1s linear infinite;
+	cursor: pointer;
+}
+
+@keyframes spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 html {
 	font-size: 18px;
 	overflow-x: hidden;
+	font-family: var(--font-clemente); 
 }
 
 a {
@@ -23,16 +34,16 @@ body, .wrapper {
 }
 
 .article-font {
-	font-family: "Goudy Bookletter 1911", serif;
+	/*font-family: "Goudy Bookletter 1911", serif;*/
 	font-weight: 400;
 	font-style: normal;
 }
 
 .title-font {
-	font-family: "Marck Script", cursive;
 	font-weight: 900;
 	font-style: normal;
 }
+
 .title {
 	color: white;
 	font-size: 2rem;
@@ -47,7 +58,7 @@ body, .wrapper {
 }
 
 .nav-link {
-	color: var(--color-1);
+	color: var(--maroon);
 	align-self: center;
 	margin-left: 1rem;
 
@@ -108,9 +119,6 @@ h3 {
 }
 
 @theme inline {
-	--color-1: #D8EFD3;
-	--color-2: #95D2B3;
-	--color-3: #55ad9b;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -150,14 +158,22 @@ h3 {
 
 :root {
 	--radius: 0.625rem;
-	--background: #F1F8E8;
+	--background: #fffefa;
 
-	--navbar-color: #626F47;
+	--navbar-color: #F0D8A1;
 	--nav-hover-color: white;
 	--color-text: #3A3335;
-	--color-1: #D8EFD3;
-	--color-2: #95D2B3;
-	--color-3: #55AD9B;
+	--color-1: black;
+	--color-2: black;
+	--color-3: black;
+
+	--maroon: #900C3F;
+	--beige-1: #FFF8E8;
+	--yellow-1: #FCDC2A;
+	--dark-blue-1: #02556D;
+	--dark-blue-2: #068888;
+	--red-1: #EE4E4E;
+	--green-1: #388E3C;
 	--post-color: var(--color-2);
 
 	--button-background: var(--color-1);
@@ -170,10 +186,10 @@ h3 {
 	--primary-foreground: oklch(0.985 0 0);
 	--secondary: oklch(0.97 0 0);
 	--secondary-foreground: oklch(0.205 0 0);
-	--muted: var(--color-1);
+	--muted: lightgray;
 	--muted-foreground: var(--color-text);
 	/* border button */
-	--accent: var(--color-1);
+	--accent: lightgray;
 	--accent-foreground: oklch(0.205 0 0);
 
 	--destructive: oklch(0.577 0.245 27.325);

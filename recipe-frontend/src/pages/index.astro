@@ -5,6 +5,8 @@ import { Searchbar } from "../components/search"
 
 ---
 <AppLayout>
-	<Searchbar placeholder="share and discover recipes with stovetop" client:load/>
-	<AuthBasedPostsFeed client:only/>
+	<div class="flex flex-col items-center">
+		<Searchbar className="w-[60%]" placeholder="share and discover recipes with stovetop" client:only/>
+		<AuthBasedPostsFeed client:only/>
+	</div>
 </AppLayout>

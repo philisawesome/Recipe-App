@@ -1,4 +1,4 @@
-import { defineConfig, envField } from "astro/config";
+import { defineConfig, envField, fontProviders } from "astro/config";
 
 import react from "@astrojs/react";
 
@@ -25,5 +25,17 @@ export default defineConfig({
 		schema: {
 		  API_URL: envField.string({ context: "client", access: "public", optional: true, default: "yooooo" }),
 		}
-  	}
+  	},
+	fonts: [{
+		provider: fontProviders.local(),
+		name: "Clemente",
+		cssVariable: "--font-clemente",
+		options: {
+		variants: [{
+			src: ['./src/assets/fonts/ClementePDai-Regular.ttf'],
+			weight: 'normal',
+			style: 'normal'
+		}]
+		}
+	}]
 });

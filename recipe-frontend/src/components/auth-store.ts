@@ -13,7 +13,7 @@ api.interceptors.response.use(
 	async (error) => {
 		const originalRequest = error.config;
 
-		if (error.response?.status === 401 && !originalRequest._retry) {
+		if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.endsWith('login')) {
 			originalRequest._retry = true;
 
 			try {
@@ -29,6 +29,12 @@ api.interceptors.response.use(
 				return Promise.reject(refreshError);
 			}
 		}
+
+		if (!error.response) {
+			errorMsg.set("Didn't get a response from our server")
+			redirect.set('/error')
+		}
+		
 		return Promise.reject(error);
 	}
 );
@@ -47,7 +53,7 @@ export type User = {
 
 export const loggedIn = atom(false)
 export const my_username = atom('')
-
+export const errorMsg = atom('')
 export const redirect = atom("")
 
 export const login = (token?: string, user?: User) => {
@@ -81,7 +87,6 @@ export const login = (token?: string, user?: User) => {
 export const logout = async () => {
 	const res = await api.post(`${API_URL}/auth/logout`, {}, { withCredentials: true })
 
-	console.log(res)
 	localStorage.clear()
 	loggedIn.set(false)
 	my_username.set('')

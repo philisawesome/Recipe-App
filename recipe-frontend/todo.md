@@ -1,17 +1,20 @@
-spinning egg for loading recipe pages
-carrot daikon
 loaf of bread
-tomato, onion, garlic
-vegetables
 corn
-broccoli
 apple pie
-block of cheese
-landing page
-st
-    
+chocolate chip cookie
+cutting board
+wooden spoon
+spatula
 
-    
-    
+# NOW:
+- [x] post feed uses skeleton
+- [x] remove recipethumbnail alt, uses skeleton
+- [x] landing link/about
+- [x] maroon for nav link color
+- [ ] discover/your feed better looking titles
+## Images
+- [ ] error.. melted icecream
+- [ ] discover
+- [ ] feed
 
-    start cooking (signup or homepage)
+search bar constant width
