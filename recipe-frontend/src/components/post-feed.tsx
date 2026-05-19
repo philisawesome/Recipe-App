@@ -8,13 +8,16 @@ import {
 import { useStore } from '@nanostores/react'
 
 import Post from "./post-thumbnail.tsx"
+import { EmptyPostThumb } from "./post-thumbnail.tsx"
 import type PostThumbnail from "./post-thumbnail.tsx"
 
 import { API_URL } from "./utils"
 import { useState, useEffect } from "react"
 
+
+
 function PostsDiscover() {
-	const [postsDiscover, setPostsDiscover] = useState<PostThumbnail>([])
+	const [postsDiscover, setPostsDiscover] = useState<PostThumbnail>(Array(3).fill(EmptyPostThumb))
 
 	useEffect(() => {
 		api.get(`${API_URL}/postDiscover`)
@@ -80,7 +83,7 @@ function PostsFeed(props: {posts: PostThumbnail[], title?: string}) {
 export function AuthBasedPostsFeed() {
 	const $loggedIn = useStore(loggedIn)
 	return <>
-		{$loggedIn && <UserPostsFeed/>}
 		<PostsDiscover/>
+		{$loggedIn && <UserPostsFeed/>}
 	</>
 }

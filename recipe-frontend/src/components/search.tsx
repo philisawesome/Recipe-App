@@ -18,11 +18,16 @@ export function SearchResult({title, description}: any) {
 	</div>
 }
 
+ 
+import { useState, useEffect } from "react"
+
 export function Searchbar({ className, type, ...props }: React.ComponentProps<"input">) {
 	const [filterState, setFilterState] = React.useState(DefaultFilter())
 
-	return <div className="flex flex-row gap-2 items-center">
-		<img src="/search-icon.svg" className="w-5"/>
+	return <div className={`
+			flex flex-row gap-2 items-center 
+			${className}`}>
+		<img alt="magnifying glass" src="/search-icon.svg" className="w-5"/>
 		<Input
 			type={type}
 			className="rounded-full"
@@ -36,7 +41,7 @@ export function Searchbar({ className, type, ...props }: React.ComponentProps<"i
 				/>
 			</PopoverContent>
 			<PopoverTrigger>
-				<img src="/filters.svg" className="w-7"/>
+				<img alt="filters" src="/filters.svg" className="w-7"/>
 			</PopoverTrigger>
 		</Popover>
 	</div>

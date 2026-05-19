@@ -33,6 +33,7 @@ const postSchema = new mongoose.Schema({
             message: 'At least one image is required'
         }
     },
+
     user:{
         type:mongoose.Schema.Types.ObjectId,
         ref: 'User',

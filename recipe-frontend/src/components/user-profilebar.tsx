@@ -118,9 +118,5 @@ export function UserPosts() {
 					</Post>
 				})
 				}
-
-				
-			
-
 	</div>
 }

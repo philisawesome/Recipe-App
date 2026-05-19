@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { ProfilePic } from "../components/avatar-card"
+import { Font } from "astro:assets";
 ---
 <!DOCTYPE html>
 <html>
@@ -30,12 +31,17 @@ import { ProfilePic } from "../components/avatar-card"
 			  display: block !important;
 			}
   		</style>
+		<Font cssVariable="--font-clemente" />
 	</head>
 	<body>
 		{/* <SidebarWrapper client:load/> */}
 		<div class="z-2 pt-10">
 			<div class="absolute top-0 left-0 z-4 navbar w-screen flex justify-center">
-				<a href="/"><h1 class="title title-font text-center">Stovetop</h1></a>
+				<a href="/" class="flex">
+					<img id="egg" class="mr-2" src="/egg.svg" width="35px"/>
+					<h1 class="title title-font text-center">Stovetop</h1>
+				</a>
+				<a class="nav-link" href="/about">About</a>
 				<a data-auth-required="false" class="nav-link" href="/login">Login</a>
 				<a data-auth-required="false" class="nav-link" href="/signup">Signup</a>
 				<a data-auth-required="true" class="nav-link" href="/new-post">New Post</a>

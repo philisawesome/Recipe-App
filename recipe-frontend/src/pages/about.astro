@@ -1,0 +1,153 @@
+---
+import AppLayout from "../layouts/AppLayout.astro"
+import { AuthBasedPostsFeed } from "../components/post-feed"
+import { Searchbar } from "../components/search"
+
+---
+<style>
+	.tomato, .onion, .parm {
+		position: absolute;
+		z-index: -1;
+		top: -3rem;
+	}
+
+	.tomato, .onion {
+		visibility: hidden;
+	}
+
+	.tomato {
+		left: -10rem;
+	}
+	.onion, .parm {
+		right: -10rem;
+	}
+
+	.tomato.rolled-in {
+	  visibility: visible;
+	  animation: roll-in 1.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+	}
+
+	.onion.rolled-in {
+	  visibility: visible;
+	  animation: roll-in-2 1.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+	}
+
+	@keyframes roll-in {
+	  from {
+		transform: translateX(-30vw) rotate(0deg);
+	  }
+	  to {
+		transform: translateX(0px) rotate(720deg);
+	  }
+	}
+
+	@keyframes roll-in-2 {
+	  from {
+		transform: translateX(30vw) rotate(0deg);
+	  }
+	  to {
+		transform: translateX(0px) rotate(-720deg);
+	  }
+	}
+
+	.red {
+		color: var(--red-1);
+	}
+	.blue {
+		color: var(--dark-blue-1);
+	}
+	.green {
+		color: var(--green-1);
+	}
+
+	.card {
+		width: 100%;
+		background-color: var(--beige-1);
+		padding: 1rem;
+		border-radius: 1.25rem;
+		display: flex;
+		align-items: center;
+		position: relative;
+		gap: 2rem;
+		transition: transform 0.2s ease;
+	}
+
+	.start-btn {
+		padding: 1rem;
+		border-radius: 1rem;
+		border-color: var(--green-1); 
+		color: white;
+    	cursor: pointer;
+    	transition: background-color 0.3s ease, color 0.3s ease;
+	}
+
+    .start-btn {
+      background-color: var(--dark-blue-1);
+	  font-size: 1.25rem;
+      color: #ffffff;
+    }
+    .start-btn:hover {
+      background-color: var(--dark-blue-2);
+      color: #ffffff;
+    }
+    .start-btn:active {
+      background-color: var(--dark-blue-1);
+      color: #d4f5e3;
+    }
+
+	.measurement {
+		text-wrap: nowrap;
+	}
+</style>
+<AppLayout>
+	<div class="flex flex-col items-center justify-center w-full pb-15">
+		<div class="w-[100%] flex flex-col gap-[8rem] relative">
+			<h1 class="-ml-6">a <span class="green">cookbook</span> for the internet</h1>
+
+			<div class="card">
+				<p class="measurement">1 cup</p>
+				<img class="parm" src="/garlicparm.svg" width="270px"/>
+				<h2>
+					<span class="red">create recipes</span> for your tasty creations 
+				</h2>
+			</div>
+
+			<div class="card">
+				<p class="measurement">2 tsp</p>
+				<img class="tomato" src="/tomato.svg" width="200px"/>
+				<h2>
+					<span class="blue">discover new dishes</span> to spice up your kitchen
+
+				</h2>
+			</div>
+
+			<div class="card">
+				<p class="measurement">2 tsp</p>
+				<img class="onion" src="/onion.svg" width="200px"/>
+				<h2>
+					<span class="blue">follow</span> your favorite cooks
+
+				</h2>
+			</div>
+
+			<a href="signup" class="self-center w-fit start-btn">Start Cooking</a>
+		</div>
+	</div>
+</AppLayout>
+
+<script>
+	function newObserver(classname: string) {
+		return new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+				  entry.target.classList.add(classname);
+				}
+			})
+		  },
+		  { threshold: 0.4 }
+		);
+	}
+
+	newObserver('rolled-in').observe(document.querySelector('.tomato'));
+	newObserver('rolled-in').observe(document.querySelector('.onion'));
+</script>

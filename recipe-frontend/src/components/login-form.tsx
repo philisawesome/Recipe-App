@@ -17,7 +17,7 @@ import {
 	FormMessage,
 } from "./ui/form"
 import { Input } from "./ui/input"
-import { redirect, login, type User } from "./auth-store"
+import { api, redirect, login, type User } from "./auth-store"
  
 const formSchema = z.object({
 	username: z.string(),
@@ -37,7 +37,7 @@ function LoginForm() {
   	})
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		axios.post(`${API_URL}/auth/login`, 
+		api.post(`${API_URL}/auth/login`, 
 			{
 				username: values.username,
 				password: values.password,
@@ -54,8 +54,7 @@ function LoginForm() {
 			login(res.data.access_token, user)
 			redirect.set(`/profile?user=${user.username}`)
 		}).catch((e) => {
-			console.log(e.response.data.error);
-			setError(e.response.data.error)
+			setError(e.response?.data.error)
 			setLoginFailed(true)
 		})
 	}
