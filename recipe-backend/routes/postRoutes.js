@@ -1,5 +1,7 @@
 import multer from "multer"
-import { uploadPhotoS3 } from "../middleware/s3.js"
+//import { uploadPhotoS3 } from "../middleware/s3.js"
+import { multiUpload } from "../middleware/s3.js"
+
 const upload = multer({storage: multer.memoryStorage()})
 
 import express from "express"
@@ -10,8 +12,8 @@ import postCtrl from "../controllers/postCtrl.js"
 router.route('/posts')
     .post(
 		auth,
-		upload.single('file'), 
-		uploadPhotoS3,
+		upload.array('photo', 10), 
+        multiUpload,
 		postCtrl.createPost
 	)
     .get(auth, postCtrl.getPosts);

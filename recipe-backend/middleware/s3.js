@@ -27,7 +27,7 @@ async function uploadFile(file, fileuid) {
 		res
 	}
 }
-
+/*
 export async function uploadPhotoS3(req, res, next) {
 	if (node_env == "dev" || node_env == "test") {
 		req.body.images = ["505cc571-8f3a-47a8-a307-bff7b4950add"]
@@ -44,12 +44,12 @@ export async function uploadPhotoS3(req, res, next) {
 		if (ext != "image/png" && ext != "image/jpeg") {
 			throw `Images must be png or jpg but got ${req.file.mimetype}`
 		} 
-
 		const fileuid = uuidv4()
 		const s3res = await uploadFile(req.file, fileuid)
 		if (s3res.statusCode != 200) {
 			return res.status(s3res.statusCode).json({error: s3res})
 		}
+
 
 req.body.images = [`https://d8c4belvva8tv.cloudfront.net/content/${fileuid}`]
 		next()
@@ -58,3 +58,38 @@ req.body.images = [`https://d8c4belvva8tv.cloudfront.net/content/${fileuid}`]
 		res.status(500).json({error: e})
 	}
 }
+*/
+	export async function multiUpload(req, res, next){
+		if (node_env == "dev" || node_env == "test") {
+		req.body.images = ["505cc571-8f3a-47a8-a307-bff7b4950add"]
+		next()
+		return
+	}	
+	const images = []; 
+	try {
+
+		const multiImg = req.files
+		for (let i = 0; i < multiImg.length; i++ ){
+			let ext = multiImg[i].mimetype;
+			if (ext != "image/png" && ext != "image/jpeg") {
+				throw `Images must be png or jpg but got ${multiImg[i].mimetype}`
+			} 
+			const fileuid = uuidv4();
+			const s3res = await uploadFile(multiImg[i], fileuid);
+			if (s3res.statusCode != 200) {
+			return res.status(s3res.statusCode).json({error: s3res})
+			}
+			images.push(fileuid);
+		}
+	
+		req.body.images = images.map((file) => `https://d8c4belvva8tv.cloudfront.net/content/${file}` )
+		
+		next();
+		return;
+	
+		
+	} catch(e){
+			console.error(e);
+			res.status(500).json({error: e});
+
+	}}
