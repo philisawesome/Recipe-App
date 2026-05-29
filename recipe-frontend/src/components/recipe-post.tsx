@@ -10,8 +10,9 @@ import {
   type CarouselApi,
 } from "../components/ui/carousel";
 import { Skeleton } from "../components/ui/skeleton";
-import { type User, NullUser, api } from "./auth-store";
+import { type User, NullUser, api, redirect } from "./auth-store";
 import { API_URL, getURLParams } from "./utils";
+import { id } from "zod/v4/locales";
 
 export type PostData = {
   author: string;
@@ -131,6 +132,28 @@ export default function RecipePost() {
       setCurrent(apiC.selectedScrollSnap() + 1);
     });
   }, [apiC]);
+  async function deletePost() {
+    setLoading(true);
+    const params = getURLParams();
+    const postId = params.id;
+    try {
+      await api.delete(`${API_URL}/post/${postId}`, {
+        data: {
+          id,
+          reason: "user request",
+        },
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
+
+      redirect.set(`/profile?user=${user.username}`);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
@@ -203,13 +226,20 @@ export default function RecipePost() {
           )}
         </div>
         <div>
-          <h2>Description</h2>
+          {postData.summary ? <h2>Description</h2> : <></>}
           {loading ? (
             <Skeleton className="h-10 w-md rounded full" />
           ) : (
             <p>{postData.summary}</p>
           )}
         </div>
+        <button
+          onClick={deletePost}
+          className="bg-(--color-1) w-fit"
+          type="button"
+        >
+          {loading ? "Deleting..." : "Delete"}{" "}
+        </button>
       </div>
     </div>
   );

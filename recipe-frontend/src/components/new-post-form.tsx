@@ -54,6 +54,8 @@ const FormSchema = z.object({
 
 export default function NewPost() {
   const [loading, setLoading] = useState<boolean>(false);
+  const [clicked, setClicked] = useState<boolean>(false);
+
   const [photo, setPhoto] = useState<File[] | null>();
   const fileInputRef = useRef<any>(null);
   const [ingreds, setIngreds] = useState<string[]>([
@@ -93,27 +95,29 @@ export default function NewPost() {
     setLoading(true);
     // Validate and send POST request here
     try {
-      console.log(photo);
-      const sendData = new FormData();
-      for (let i = 0; i < formData.photo.length; i++) {
-        sendData.append("photo", formData.photo[i]);
-      }
-      for (let i = 0; i < ingreds.length; i++) {
-        sendData.append("ingredients", ingreds[i]);
-      }
-      for (let i = 0; i < steps.length; i++) {
-        sendData.append("instructions", steps[i]);
-      }
-      sendData.append("title", formData.recipeTitle);
-      sendData.append("content", formData.summary);
-      await api.post(`${API_URL}/posts`, sendData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      });
+      if (clicked) {
+        console.log(photo);
+        const sendData = new FormData();
+        for (let i = 0; i < formData.photo.length; i++) {
+          sendData.append("photo", formData.photo[i]);
+        }
+        for (let i = 0; i < ingreds.length; i++) {
+          sendData.append("ingredients", ingreds[i]);
+        }
+        for (let i = 0; i < steps.length; i++) {
+          sendData.append("instructions", steps[i]);
+        }
+        sendData.append("title", formData.recipeTitle);
+        sendData.append("content", formData.summary);
+        await api.post(`${API_URL}/posts`, sendData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        });
 
-      redirect.set("/");
+        redirect.set("/");
+      }
     } catch (e) {
       console.log(e);
     } finally {
@@ -125,7 +129,7 @@ export default function NewPost() {
     <div
       className="border-2 w-lg gap-4
 		p-4 rounded-lg border-solid 
-		flex flex-col items-center"
+		flex flex-col items-center mx-auto"
     >
       <h1>Create a new recipe</h1>
 
@@ -183,8 +187,24 @@ export default function NewPost() {
                   />
                 </FormControl>
                 {photo &&
-                  Array.from(photo).map((p) => {
-                    return <p>{p.name}</p>;
+                  Array.from(photo).map((p, index) => {
+                    return (
+                      <div key={index}>
+                        <p>{p.name}</p>
+                        <button
+                          onClick={() => {
+                            photo.splice(index, 1);
+                            const fileToRemove = [...photo];
+                            fileInputRef.current.value = "";
+                            setPhoto(fileToRemove);
+                            form.setValue("photo", fileToRemove);
+                          }}
+                        >
+                          {" "}
+                          'x'
+                        </button>
+                      </div>
+                    );
                   })}
                 <FormMessage />
               </FormItem>
@@ -224,6 +244,9 @@ export default function NewPost() {
             type="submit"
             value="submit"
             disabled={loading}
+            onClick={() => {
+              setClicked(true);
+            }}
           >
             {loading ? "Posting..." : "Post"}
           </Button>
