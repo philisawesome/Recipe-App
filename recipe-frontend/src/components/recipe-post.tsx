@@ -1,6 +1,12 @@
 import { AvatarCard } from "../components/avatar-card";
 import { Toggle } from "./ui/toggle";
 import { useState, useEffect } from "react";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import {
   Carousel,
   CarouselItem,
@@ -73,6 +79,7 @@ export default function RecipePost() {
   //const [loading, egg] = UseLoading();
 
   const [loading, setLoading] = useState(true);
+  //delete post
 
   useEffect(() => {
     // Fetch and set numlikes/liked here
@@ -132,6 +139,48 @@ export default function RecipePost() {
       setCurrent(apiC.selectedScrollSnap() + 1);
     });
   }, [apiC]);
+  function USure() {
+    const [open, setOpen] = useState(false);
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+    const handleClose = () => {
+      setOpen(false);
+    };
+
+    return (
+      <div>
+        <Button onClick={handleClickOpen}>Delete</Button>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aira-describedby="alert-dialog-description"
+          role="alertdialog"
+        >
+          <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Deleting this post is irreversible
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} autoFocus>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                handleClose();
+                deletePost();
+              }}
+            >
+              Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    );
+  }
   async function deletePost() {
     setLoading(true);
     const params = getURLParams();
@@ -233,13 +282,7 @@ export default function RecipePost() {
             <p>{postData.summary}</p>
           )}
         </div>
-        <button
-          onClick={deletePost}
-          className="bg-(--color-1) w-fit"
-          type="button"
-        >
-          {loading ? "Deleting..." : "Delete"}{" "}
-        </button>
+        <USure></USure>
       </div>
     </div>
   );

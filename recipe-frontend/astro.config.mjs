@@ -26,7 +26,7 @@ export default defineConfig({
 		  API_URL: envField.string({ context: "client", access: "public", optional: true, default: "http://localhost:4321" }),
 		}
   	},
-	experimental:{
+
 	fonts: [{
 		provider: fontProviders.local(),
 		name: "Clemente",
@@ -39,4 +39,4 @@ export default defineConfig({
 		}]
 		}
 	}]
-}});
+});
