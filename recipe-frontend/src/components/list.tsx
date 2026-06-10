@@ -96,7 +96,7 @@ const List: React.FC<ListProps> = ({ title, items, setItems, placeholder = "Ente
 
   return (
     <div className="rounded-lg w-full" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-      <h3 className="font-bold mb-2">{title}</h3>
+      <p className="text-sm font-medium leading-none mb-2">{title}</p>
       <div 
 		  className="space-y-2 overflow-y-auto"
 		  style={{ 

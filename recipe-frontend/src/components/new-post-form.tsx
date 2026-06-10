@@ -18,6 +18,13 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 // Page for authenticated users to create and post recipes
 //
@@ -30,7 +37,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { z } from "zod";
+import { custom, z } from "zod";
 const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg"];
 
 const FormSchema = z.object({
@@ -39,7 +46,9 @@ const FormSchema = z.object({
   }),
   photo: z
     .array(z.any())
-    .min(1)
+    .min(1, {
+      message: "Please select atleast 1 image",
+    })
     .refine(
       (files) => {
         return files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type));
@@ -49,6 +58,21 @@ const FormSchema = z.object({
 
   summary: z.string().max(200, {
     message: "Summary can't be more than 200 characters",
+  }),
+  mins: z.string({
+    message: "Please Select Minutes",
+  }),
+  hrs: z.string({
+    message: "Please Select Hours",
+  }),
+  days: z.string({
+    message: "Please Select Day",
+  }),
+  serving: z.string({
+    message: "Please Select Serving Size",
+  }),
+  difficulty: z.string({
+    message: "Please Select Difficulty",
   }),
 });
 
@@ -86,7 +110,7 @@ export default function NewPost() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       recipeTitle: "",
-      photo: undefined,
+      photo: [],
       summary: "",
     },
   });
@@ -96,7 +120,17 @@ export default function NewPost() {
     // Validate and send POST request here
     try {
       if (clicked) {
-        console.log(photo);
+        if (
+          formData.hrs == "0" &&
+          formData.days == "0" &&
+          formData.mins == "0"
+        ) {
+          form.setError("mins", {
+            type: "custom",
+            message: "Minutes cannot be 0",
+          });
+          return;
+        }
         const sendData = new FormData();
         for (let i = 0; i < formData.photo.length; i++) {
           sendData.append("photo", formData.photo[i]);
@@ -109,6 +143,12 @@ export default function NewPost() {
         }
         sendData.append("title", formData.recipeTitle);
         sendData.append("content", formData.summary);
+        sendData.append("days", formData.days);
+        sendData.append("hrs", formData.hrs);
+        sendData.append("mins", formData.mins);
+        sendData.append("serving", formData.serving);
+        sendData.append("difficulty", formData.difficulty);
+
         await api.post(`${API_URL}/posts`, sendData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -189,7 +229,7 @@ export default function NewPost() {
                 {photo &&
                   Array.from(photo).map((p, index) => {
                     return (
-                      <div key={index}>
+                      <div key={index} className="flex">
                         <p>{p.name}</p>
                         <button
                           onClick={() => {
@@ -199,9 +239,10 @@ export default function NewPost() {
                             setPhoto(fileToRemove);
                             form.setValue("photo", fileToRemove);
                           }}
+                          className="px-2 cursor-pointer"
                         >
                           {" "}
-                          'x'
+                          [x]
                         </button>
                       </div>
                     );
@@ -239,17 +280,152 @@ export default function NewPost() {
             )}
           />
 
-          <Button
-            className="bg-(--color-1) w-fit"
-            type="submit"
-            value="submit"
-            disabled={loading}
-            onClick={() => {
-              setClicked(true);
-            }}
-          >
-            {loading ? "Posting..." : "Post"}
-          </Button>
+          <p className="text-sm font-medium leading-none -mb-5 ">Cook Time</p>
+          <div className="flex gap-x-2">
+            <FormField
+              control={form.control}
+              name="days"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Days" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Array.from({ length: 6 }).map((v, i) => (
+                        <SelectItem key={i} value={`${i}`}>
+                          {i}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="hrs"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Hours" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Array.from({ length: 24 }).map((v, i) => (
+                        <SelectItem key={i} value={`${i}`}>
+                          {i}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="mins"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Minutes" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Array.from({ length: 12 }, (_, i) => i * 5).map((i) => (
+                        <SelectItem key={i} value={`${i}`}>
+                          {i}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <p className="text-sm font-medium leading-none -mb-5 ">Serving</p>
+          <FormField
+            control={form.control}
+            name="serving"
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  defaultValue={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <FormControl>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Serving" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((i) => (
+                      <SelectItem key={i} value={`${i}`}>
+                        {i}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <p className="text-sm font-medium leading-none -mb-5 ">Difficulty</p>
+          <FormField
+            control={form.control}
+            name="difficulty"
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  defaultValue={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <FormControl>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Difficulty" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Easy">Easy</SelectItem>
+                    <SelectItem value="Medium">Medium</SelectItem>
+                    <SelectItem value="Hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex justify-center items-center">
+            <Button
+              className="bg-(--color-1) w-fit"
+              type="submit"
+              value="submit"
+              disabled={loading}
+              onClick={() => {
+                setClicked(true);
+              }}
+            >
+              {loading ? "Posting..." : "Post"}
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
