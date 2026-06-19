@@ -1,12 +1,12 @@
 ---
 import AppLayout from "../layouts/AppLayout.astro"
-import { AuthBasedPostsFeed } from "../components/post-feed"
-import { Searchbar } from "../components/search"
+import { FeedTabs, FeedContent } from "../components/post-feed"
 
 ---
 <AppLayout>
+	<FeedTabs client:only/>
+	<div class="mb-5 border-gray-350 border-b py-1"></div>
 	<div class="flex flex-col items-center">
-		<Searchbar className="w-[60%]" placeholder="share and discover recipes with stovetop" client:only/>
-		<AuthBasedPostsFeed client:only/>
+		<FeedContent client:only/>
 	</div>
 </AppLayout>
