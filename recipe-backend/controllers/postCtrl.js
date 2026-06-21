@@ -189,7 +189,7 @@ export async function getUserPosts(req, res){
 
 // get a singular post 
 export async function getPost(req, res){
-    try{
+    try {
         if (!mongoose.isValidObjectId(req.params.id)){
             return res.status(404).json({error:'post not found'});
         }
@@ -201,17 +201,29 @@ export async function getPost(req, res){
         .populate('user likes', 'avatar username ')
         .populate({
             path:'comments',
+			match: {replyTo: null}, // top level comments
             options:{sort:{createdAt: -1}, limit: commentLimit},
             select:'content user createdAt',
             populate:{path:'user', select:'username avatar'}
         })
         .lean();
 
-        if(!post) return res.status(404).json({error:'Post does not exist.'});
+		let liked = false;
+		if (req.user) {
+			const postLikedByUser = await Posts.findById(req.params.id).find({
+				likes: { $elemMatch: { $eq: req.user._id } }
+			})
+			if (postLikedByUser != null && postLikedByUser.length > 0) {
+				liked = true
+			}
+		}
+
+        if (!post) return res.status(404).json({error:'Post does not exist.'});
 
         res.status(200).json({
             post,
-            commentsReturned: post.comments?.length || 0 
+            commentsReturned: post.comments?.length || 0,
+			liked: liked,
         });
     }catch(err){
         console.error(err)

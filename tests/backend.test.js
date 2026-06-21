@@ -133,7 +133,7 @@ describe('get profile', () => {
 	})
 });
 
-describe('create post', () => {
+describe('create, like post, get post likes', () => {
 	it('POST posts', async () => {
 		let access_token = await TM.gotAccessToken();
 
@@ -155,9 +155,20 @@ describe('create post', () => {
 		})
 
 		await request(app)
+		.patch(`/api/post/${post_id}/like`)
+		.set({'Authorization': 'Bearer ' + access_token})
+		.expect(200)
+		.then((res) => {
+		})
+
+		await request(app)
 		.get(`/api/post/${post_id}`)
+		.set({'Authorization': 'Bearer ' + access_token})
+		.expect(200)
 		.then((res) => {
 			expect(res.body.post.user).not.toBeNull();
+			expect(res.body.liked).not.toBeNull();
+			expect(res.body.liked).toBe(true);
 		})
 	})
 });

@@ -4,9 +4,9 @@ import { accessTokenSecret } from "../config.js";
 
 export default async function auth(req,res, next){
     try{
-
         const authHeader = req.header("Authorization");
         if (!authHeader || !authHeader.startsWith("Bearer ")){
+			console.log(authHeader)
             return res.status(401).json({error:"No token provided"});
         }
 
@@ -32,4 +32,31 @@ export default async function auth(req,res, next){
         console.error("Auth middleware error:",err);
         return res.status(500).json({error:"Server error."});
     }
+}
+
+// DUPLICATE CODE FROM AUTH
+export async function optionalAuth(req, res, next){
+	const authHeader = req.header("Authorization");
+	if (!authHeader || !authHeader.startsWith("Bearer ")){
+		return next()
+	}
+
+	const token = authHeader.split(" ")[1];
+
+	let decoded;
+	try {
+		decoded = jwt.verify(token,accessTokenSecret);
+	} catch(err) {
+		return next()
+	}
+
+	const user = await Users.findById(decoded.id).select("-password").lean();
+	if (!user) {
+		return next()
+
+	}
+
+	//returns authenticated user to the requested user
+	req.user = user;
+	next();
 }

@@ -14,9 +14,11 @@ import {
   CarouselNext,
   CarouselPrevious,
   type CarouselApi,
-} from "../components/ui/carousel";
-import { Skeleton } from "../components/ui/skeleton";
-import { type User, NullUser, api, redirect } from "./auth-store";
+} from "./ui/carousel";
+import { Skeleton } from "./ui/skeleton";
+import { CommentSection } from "./comment";
+import { useStore } from '@nanostores/react'
+import { type User, NullUser, api, loggedIn, redirect } from "./auth-store";
 import { API_URL, getURLParams } from "./utils";
 import { id } from "zod/v4/locales";
 
@@ -26,11 +28,13 @@ export type PostData = {
   followedAuthor?: boolean;
   image: string;
   liked?: boolean;
+  likes: int;
   title: string;
   body: string;
   instructions: [string];
   ingredients: [string];
   summary: string;
+  comments?: [any];
 };
 
 const defaultData: PostData = {
@@ -39,6 +43,7 @@ const defaultData: PostData = {
   followedAuthor: false,
   image: "",
   liked: false,
+  likes: 0,
   title: "",
   body: "",
   instructions: [""],
@@ -65,7 +70,6 @@ function UseLoading() {
 }
 
 export default function RecipePost() {
-  const [numLikes, setNumLikes] = useState(0);
   const [liked, setLiked] = useState(false);
 
   const [user, setUser] = useState<User>(NullUser);
@@ -75,27 +79,43 @@ export default function RecipePost() {
   const [apiC, setApiC] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const [postId, setPostId] = useState('');
 
   //const [loading, egg] = UseLoading();
 
   const [loading, setLoading] = useState(true);
   //delete post
+  const $loggedIn = useStore(loggedIn)
+
+  async function apiSetLiked(postId, newLiked: boolean) {
+	  api.patch(`${API_URL}/post/${postId}/${newLiked?'':'un'}like`, 
+	  	{}, 
+		{
+			headers: {
+				"Content-Type": "multipart/form-data",
+				Authorization: "Bearer " + localStorage.getItem("token"),
+			},
+	  })
+  }
 
   useEffect(() => {
     // Fetch and set numlikes/liked here
-    setNumLikes(67);
-    setLiked(false);
 
     const params = getURLParams();
 
     try {
-      let id = params.id;
+	  setPostId(params.id);
       if (id === undefined) {
         throw "Expected post id";
       }
 
       api
-        .get(`${API_URL}/post/${id}`)
+        .get(`${API_URL}/post/${params.id}`, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+				Authorization: "Bearer " + localStorage.getItem("token"),
+			},
+        })
         .then((res) => {
           const post = res.data.post;
           setPostData({
@@ -103,14 +123,17 @@ export default function RecipePost() {
             title: post.title,
             author: post.user.username,
             image: post.images,
+			likes: post.likes?.length - (res.data.liked ? 1 : 0),
             instructions: post.instructions,
             ingredients: post.ingredients,
             summary: post.content,
+			comments: post.comments
           });
+
+    	  setLiked(res.data.liked);
 
           api
             .get(`${API_URL}/profile/${res.data.post.user._id}`)
-
             .then((res) => {
               setUser({
                 username: res.data.user.username,
@@ -215,14 +238,17 @@ export default function RecipePost() {
       </h1>
       <AvatarCard user={user} />
       <div className="flex items-center gap-2 mb-5">
-        <Toggle
+		{$loggedIn && <Toggle
+		  pressed={liked} 
           onPressedChange={(b) => {
             setLiked(b);
+			apiSetLiked(postId, b);
           }}
         >
           Like
-        </Toggle>
-        <div>{numLikes + (liked ? 1 : 0)} likes</div>
+        </Toggle>}
+		{/*todo*/}
+        <div>{postData.likes + (liked ? 1 : 0)} likes</div>
       </div>
       <div className="w-full">
         <Carousel setApi={setApiC} className="w-full">
@@ -282,6 +308,7 @@ export default function RecipePost() {
             <p>{postData.summary}</p>
           )}
         </div>
+		<CommentSection comments={postData.comments || []}></CommentSection>
         <USure></USure>
       </div>
     </div>

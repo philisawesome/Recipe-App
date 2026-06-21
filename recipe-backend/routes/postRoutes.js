@@ -6,6 +6,7 @@ const upload = multer({storage: multer.memoryStorage()})
 
 import express from "express"
 const router = express.Router()
+import { optionalAuth } from "../middleware/auth.js"
 import auth from "../middleware/auth.js"
 import postCtrl from "../controllers/postCtrl.js"
 
@@ -19,7 +20,7 @@ router.route('/posts')
     .get(auth, postCtrl.getPosts);
 router.route('/post/:id')
     .patch(auth, postCtrl.updatePost)
-    .get(postCtrl.getPost)
+    .get(optionalAuth, postCtrl.getPost)
     .delete(auth, postCtrl.deletePost);
 
 router.patch('/post/:id/like', auth, postCtrl.likePost);
