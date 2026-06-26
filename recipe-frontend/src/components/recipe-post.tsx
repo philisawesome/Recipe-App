@@ -22,7 +22,9 @@ import { id } from "zod/v4/locales";
 
 export type PostData = {
   author: string;
+  authorId: string;
   yourPost: boolean;
+  likes: number;
   followedAuthor?: boolean;
   image: string;
   liked?: boolean;
@@ -40,7 +42,9 @@ export type PostData = {
 
 const defaultData: PostData = {
   author: "",
+  authorId: "",
   yourPost: false,
+  likes: 0,
   followedAuthor: false,
   image: "",
   liked: false,
@@ -163,7 +167,7 @@ function Settings({ deletePost, user, loading }: PostActionProps) {
 export default function RecipePost() {
   const [numLikes, setNumLikes] = useState(0);
   const [liked, setLiked] = useState(false);
-
+  const [likeLoading, setLikedLoading] = useState(false);
   const [user, setUser] = useState<User>(NullUser);
   const [postData, setPostData] = useState<PostData>(defaultData);
 
@@ -179,8 +183,6 @@ export default function RecipePost() {
 
   useEffect(() => {
     // Fetch and set numlikes/liked here
-    setNumLikes(67);
-    setLiked(false);
 
     const params = getURLParams();
 
@@ -197,7 +199,9 @@ export default function RecipePost() {
           setPostData({
             ...postData,
             title: post.title,
+            likes: post.likes.length,
             author: post.user.username,
+            authorId: post.user,
             image: post.images,
             instructions: post.instructions,
             ingredients: post.ingredients,
@@ -220,6 +224,10 @@ export default function RecipePost() {
               });
               setLoading(false);
             });
+          setNumLikes(post.likes.length);
+          const myUserId = localStorage.getItem("userid");
+          const alreadyLiked = post.likes.some((like) => like._id === myUserId);
+          setLiked(alreadyLiked);
         })
         .catch((e) => {
           console.log(e);
@@ -260,6 +268,31 @@ export default function RecipePost() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  }
+  async function isLiked(b: boolean) {
+    const params = getURLParams();
+    const postId = params.id;
+    setLikedLoading(true);
+    try {
+      if (b) {
+        await api.patch(`${API_URL}/post/${postId}/like`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        });
+      } else {
+        await api.patch(`${API_URL}/post/${postId}/unlike`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        });
+      }
+      setLiked(b);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLikedLoading(false);
     }
   }
 
@@ -352,16 +385,25 @@ export default function RecipePost() {
 
       <div className="flex items-center gap-2 mb-5 border-gray-350 border-y px-4 py-3">
         <Toggle
+          pressed={liked}
+          disabled={likeLoading}
           className="rounded-full border px-4 py-2  "
           onPressedChange={(b) => {
-            setLiked(b);
+            isLiked(b);
+            if (b) {
+              setNumLikes(numLikes + 1);
+            } else {
+              setNumLikes(numLikes - 1);
+            }
           }}
         >
           Like
         </Toggle>
-        <div>{numLikes + (liked ? 1 : 0)} likes</div>
+        <div>{numLikes} likes</div>
         <div>
-          <Settings deletePost={deletePost} user={user} loading={loading} />
+          {user.id == postData.authorId ? (
+            <Settings deletePost={deletePost} user={user} loading={loading} />
+          ) : null}
         </div>
       </div>
       <div className="text-center">

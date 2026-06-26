@@ -26,7 +26,10 @@ api.interceptors.response.use(
 
 				return api(originalRequest);
 			} catch (refreshError) {
+				redirect.set('/login')
+
 				return Promise.reject(refreshError);
+
 			}
 		}
 

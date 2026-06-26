@@ -24,6 +24,27 @@ const postSchema = new mongoose.Schema({
         trim:true,
         maxlength:2000
     },
+        days: {
+        type: String,
+        required: true, 
+    },
+        hrs: {
+        type: String, 
+        required:true,
+    },
+        mins: {
+        type: String, 
+        required:true,
+    },
+        serving: {
+        type: String, 
+        required:true,
+    },
+        difficulty: {
+        type: String,
+        required:true,
+
+    },
     images: {
         type: [String],
         required: true, 
@@ -49,6 +70,7 @@ const postSchema = new mongoose.Schema({
         default:[]
 
     },
+
 },
 {timestamps: true}
 );

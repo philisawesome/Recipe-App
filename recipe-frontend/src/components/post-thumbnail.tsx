@@ -34,15 +34,19 @@ export default function PostThumbnail(props: PostThumbnail) {
   return (
     <a href={`/post?id=${postId}`} className="block">
       <div className="border-4 rounded-sm p-5">
-        <div className="flex mb-2">
-          <img className="w-8 h-8 rounded-full object-cover" src={avatar} />
-          <p className="mx-1 py-1 font-extrabold">{author}</p>
-        </div>
+        {author && avatar ? (
+          <div className="flex mb-2">
+            <img className="w-8 h-8 rounded-full object-cover" src={avatar} />
+            <p className="mx-2 py-1 font-extrabold">{author}</p>
+          </div>
+        ) : null}
 
-        <img
-          className={`object-cover rounded-sm ${postSizeClass}`}
-          src={getImgSrc(imageUrl)}
-        />
+        <div className="my-4">
+          <img
+            className={`object-cover rounded-sm ${postSizeClass}`}
+            src={getImgSrc(imageUrl)}
+          />
+        </div>
         <h3 className="font-extrabold mt-2">{title}</h3>
         <p className="font-light">{summary}</p>
         <div>

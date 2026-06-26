@@ -24,6 +24,11 @@ export async function createPost(req, res){
 			images = [],
 			ingredients = [],
 			instructions = [],
+            days = '',
+            hrs = '',
+            mins = '',
+            serving = '',
+            difficulty = '',
 		} = req.body || {};
 
         if (invalidArr(images)) {
@@ -44,6 +49,11 @@ export async function createPost(req, res){
             images,
 			ingredients,
 			instructions,
+            days,
+            hrs,
+            mins,
+            serving,
+            difficulty,
             user: req.user._id
 		});
 
@@ -176,6 +186,7 @@ export async function getUserPosts(req, res){
             .lean();
 
             const hasMore = posts.length === limit; 
+        await Posts.populate(posts, { path: 'likes', select: 'avatar username' })
 
             res.status(200).json({page, limit, hasMore, result: posts.length,posts});
 
@@ -230,7 +241,8 @@ export async function getPostDiscover (req, res){
             {$match: {user: {$nin: exclude}}},
             {$sample:{ size }}
 
-        ]);
+        ])
+        await Posts.populate(posts, { path: 'user', select: 'avatar username' })
         res.status(200).json({
             msg: 'Success',
             result: posts.length,
