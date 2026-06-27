@@ -30,11 +30,11 @@ function PostsDiscover() {
             avatar: p.user.avatar,
             title: p.title,
             summary: p.content,
-            likes: p.likes.length,
+            likes: p.likes?.length ?? 0,
           };
         }),
       );
-    });
+    }).catch(() => setPostsDiscover([]));
   }, []);
 
   return <PostsFeed posts={postsDiscover} title={"discover"} />;
@@ -65,11 +65,11 @@ function UserPostsFeed() {
               avatar: p.user.avatar,
               title: p.title,
               summary: p.content,
-              likes: p.likes.length,
+              likes: p.likes?.length ?? 0,
             };
           }),
         );
-      });
+      }).catch(() => setPosts([]));
   }, []);
 
   return <PostsFeed posts={posts} />;

@@ -16,9 +16,10 @@ import {
   type CarouselApi,
 } from "../components/ui/carousel";
 import { Skeleton } from "../components/ui/skeleton";
-import { type User, NullUser, api, redirect } from "./auth-store";
+import { CommentSection } from "./comment";
+import { useStore } from "@nanostores/react";
+import { type User, NullUser, api, loggedIn, redirect } from "./auth-store";
 import { API_URL, getURLParams } from "./utils";
-import { id } from "zod/v4/locales";
 
 export type PostData = {
   author: string;
@@ -38,6 +39,7 @@ export type PostData = {
   mins: string;
   serving: string;
   difficulty: string;
+  comments?: any[];
 };
 
 const defaultData: PostData = {
@@ -58,25 +60,8 @@ const defaultData: PostData = {
   mins: "",
   serving: "",
   difficulty: "",
+  comments: [],
 };
-
-function UseLoading() {
-  const [loading, setLoading] = useState(false);
-  const egg = (
-    <div>
-      {loading && (
-        <img
-          id="egg"
-          className="absolute"
-          alt="spinning egg"
-          src="/egg.svg"
-          width="200px"
-        />
-      )}
-    </div>
-  );
-  return [setLoading, egg];
-}
 
 type PostActionProps = {
   deletePost: () => Promise<void>;
@@ -86,12 +71,8 @@ type PostActionProps = {
 
 function USure({ deletePost, user, loading }: PostActionProps) {
   const [open, setOpen] = useState(false);
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const handleClickOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
     <div>
@@ -102,7 +83,7 @@ function USure({ deletePost, user, loading }: PostActionProps) {
         open={open}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
-        aira-describedby="alert-dialog-description"
+        aria-describedby="alert-dialog-description"
         role="alertdialog"
       >
         <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
@@ -131,12 +112,8 @@ function USure({ deletePost, user, loading }: PostActionProps) {
 
 function Settings({ deletePost, user, loading }: PostActionProps) {
   const [open, setOpen] = useState(false);
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const handleClickOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
     <div>
@@ -145,7 +122,7 @@ function Settings({ deletePost, user, loading }: PostActionProps) {
         open={open}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
-        aira-describedby="alert-dialog-description"
+        aria-describedby="alert-dialog-description"
         role="alertdialog"
         fullWidth
       >
@@ -165,44 +142,74 @@ function Settings({ deletePost, user, loading }: PostActionProps) {
 }
 
 export default function RecipePost() {
-  const [numLikes, setNumLikes] = useState(0);
+  // --- liking: using partner's approach (backend tells us if we've already liked) ---
   const [liked, setLiked] = useState(false);
-  const [likeLoading, setLikedLoading] = useState(false);
+  const [numLikes, setNumLikes] = useState(0);
+  const [likeLoading, setLikeLoading] = useState(false); // kept from your version, spam-click guard
+
   const [user, setUser] = useState<User>(NullUser);
   const [postData, setPostData] = useState<PostData>(defaultData);
+  const [postId, setPostId] = useState("");
 
-  //carousel pages
+  // carousel
   const [apiC, setApiC] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
 
-  //const [loading, egg] = UseLoading();
-
   const [loading, setLoading] = useState(true);
-  //delete post
+
+  const $loggedIn = useStore(loggedIn);
+
+  // --- liking: partner's apiSetLiked, with your loading guard added ---
+  async function apiSetLiked(postId: string, newLiked: boolean) {
+    setLikeLoading(true);
+    try {
+      await api.patch(
+        `${API_URL}/post/${postId}/${newLiked ? "" : "un"}like`,
+        {},
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        },
+      );
+      setLiked(newLiked);
+      setNumLikes((prev) => prev + (newLiked ? 1 : -1));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLikeLoading(false);
+    }
+  }
 
   useEffect(() => {
-    // Fetch and set numlikes/liked here
-
     const params = getURLParams();
 
     try {
-      let id = params.id;
+      const id = params.id;
       if (id === undefined) {
         throw "Expected post id";
       }
+      setPostId(id);
 
       api
-        .get(`${API_URL}/post/${id}`)
+        .get(`${API_URL}/post/${id}`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
         .then((res) => {
           const post = res.data.post;
+
           setPostData({
             ...postData,
             title: post.title,
-            likes: post.likes.length,
             author: post.user.username,
-            authorId: post.user,
+            authorId: post.user._id,
             image: post.images,
+            // partner's approach: backend already tells us if liked,
+            // so we don't double count it here
+            likes: post.likes?.length - (res.data.liked ? 1 : 0),
             instructions: post.instructions,
             ingredients: post.ingredients,
             summary: post.content,
@@ -211,33 +218,29 @@ export default function RecipePost() {
             mins: post.mins,
             serving: post.serving,
             difficulty: post.difficulty,
+            comments: post.comments,
           });
 
-          api
-            .get(`${API_URL}/profile/${res.data.post.user._id}`)
+          setLiked(res.data.liked);
+          setNumLikes(post.likes?.length || 0);
 
-            .then((res) => {
-              setUser({
-                username: res.data.user.username,
-                name: res.data.user.name,
-                id: res.data.user._id,
-              });
-              setLoading(false);
+          api.get(`${API_URL}/profile/${post.user._id}`).then((res) => {
+            setUser({
+              username: res.data.user.username,
+              name: res.data.user.name,
+              id: res.data.user._id,
             });
-          setNumLikes(post.likes.length);
-          const myUserId = localStorage.getItem("userid");
-          const alreadyLiked = post.likes.some((like) => like._id === myUserId);
-          setLiked(alreadyLiked);
+            setLoading(false);
+          });
         })
         .catch((e) => {
           console.log(e);
         });
     } catch (e) {}
   }, []);
+
   useEffect(() => {
-    if (!apiC) {
-      return;
-    }
+    if (!apiC) return;
     setCount(apiC.scrollSnapList().length);
     setCurrent(apiC.selectedScrollSnap() + 1);
     apiC.on("select", () => {
@@ -248,12 +251,13 @@ export default function RecipePost() {
       setCurrent(apiC.selectedScrollSnap() + 1);
     });
   }, [apiC]);
+
   async function deletePost() {
     setLoading(true);
     const params = getURLParams();
-    const postId = params.id;
+    const id = params.id;
     try {
-      await api.delete(`${API_URL}/post/${postId}`, {
+      await api.delete(`${API_URL}/post/${id}`, {
         data: {
           id,
           reason: "user request",
@@ -262,7 +266,6 @@ export default function RecipePost() {
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
       });
-
       redirect.set(`/profile?user=${user.username}`);
     } catch (e) {
       console.error(e);
@@ -270,34 +273,9 @@ export default function RecipePost() {
       setLoading(false);
     }
   }
-  async function isLiked(b: boolean) {
-    const params = getURLParams();
-    const postId = params.id;
-    setLikedLoading(true);
-    try {
-      if (b) {
-        await api.patch(`${API_URL}/post/${postId}/like`, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        });
-      } else {
-        await api.patch(`${API_URL}/post/${postId}/unlike`, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        });
-      }
-      setLiked(b);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLikedLoading(false);
-    }
-  }
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 ">
+    <div className="w-full max-w-2xl mx-auto px-4">
       <div className="text-center flex flex-col items-center">
         <h1>
           {loading ? (
@@ -326,7 +304,9 @@ export default function RecipePost() {
               </CarouselItem>
             ))}
           </CarouselContent>
-        </Carousel>{" "}
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
         <div className="flex justify-center gap-2 mt-2">
           {Array.from(postData.image).map((img, key) => (
             <img
@@ -354,7 +334,7 @@ export default function RecipePost() {
                 : postData.days != "0" &&
                     postData.hrs == "0" &&
                     postData.mins == "0"
-                  ? `${postData.days}`
+                  ? `${postData.days}d`
                   : postData.hrs != "0" &&
                       postData.mins != "0" &&
                       postData.days == "0"
@@ -384,28 +364,26 @@ export default function RecipePost() {
       </div>
 
       <div className="flex items-center gap-2 mb-5 border-gray-350 border-y px-4 py-3">
-        <Toggle
-          pressed={liked}
-          disabled={likeLoading}
-          className="rounded-full border px-4 py-2  "
-          onPressedChange={(b) => {
-            isLiked(b);
-            if (b) {
-              setNumLikes(numLikes + 1);
-            } else {
-              setNumLikes(numLikes - 1);
-            }
-          }}
-        >
-          Like
-        </Toggle>
+        {$loggedIn && (
+          <Toggle
+            pressed={liked}
+            disabled={likeLoading}
+            className="rounded-full border px-4 py-2"
+            onPressedChange={(b) => {
+              apiSetLiked(postId, b);
+            }}
+          >
+            Like
+          </Toggle>
+        )}
         <div>{numLikes} likes</div>
         <div>
-          {user.id == postData.authorId ? (
+          {user.id === postData.authorId ? (
             <Settings deletePost={deletePost} user={user} loading={loading} />
           ) : null}
         </div>
       </div>
+
       <div className="text-center">
         {loading ? (
           <Skeleton className="h-10 w-md rounded-full" />
@@ -420,15 +398,14 @@ export default function RecipePost() {
           {loading ? (
             <Skeleton className="h-10 w-full rounded-full" />
           ) : (
-            <div className="bg-[#FBF4E8] rounded-xl  p-4">
+            <div className="bg-[#FBF4E8] rounded-xl p-4">
               {postData.ingredients.map((step, index) => (
-                <div className="flex  items-center gap-3">
+                <div className="flex items-center gap-3" key={index}>
                   <input
                     type="checkbox"
                     className="w-4 h-4 accent-[#D85A30] m-2"
                   />
-
-                  <span key={index}>{step}</span>
+                  <span>{step}</span>
                 </div>
               ))}
             </div>
@@ -441,16 +418,18 @@ export default function RecipePost() {
           ) : (
             <div className="flex-row items-center gap-4">
               {postData.instructions.map((step, index) => (
-                <div className="flex gap-3 mb-2">
+                <div className="flex gap-3 mb-2" key={index}>
                   <div className="rounded-full bg-[#D85A30] text-white flex items-center justify-center w-7 h-7 shrink-0">
                     {index + 1}
                   </div>
-                  <div key={index}>{step}</div>
+                  <div>{step}</div>
                 </div>
               ))}
             </div>
           )}
         </div>
+
+        <CommentSection comments={postData.comments || []} />
       </div>
     </div>
   );

@@ -1,6 +1,4 @@
 import { atom } from 'nanostores'
-import Cookies from 'js-cookie'
-
 import axios from "axios"
 import { API_URL } from "./utils"
 
@@ -33,7 +31,7 @@ api.interceptors.response.use(
 			}
 		}
 
-		if (!error.response) {
+		if (!error.response && !originalRequest?.url?.endsWith('login')) {
 			errorMsg.set("Didn't get a response from our server")
 			redirect.set('/error')
 		}
@@ -88,7 +86,7 @@ export const login = (token?: string, user?: User) => {
 }
 
 export const logout = async () => {
-	const res = await api.post(`${API_URL}/auth/logout`, {}, { withCredentials: true })
+	await api.post(`${API_URL}/auth/logout`, {}, { withCredentials: true })
 
 	localStorage.clear()
 	loggedIn.set(false)

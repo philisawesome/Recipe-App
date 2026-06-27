@@ -16,7 +16,7 @@ export const app = express();
 
 //middleware stuff??? 
 app.use(cors({
-  origin:[process.env.FRONTEND_URL,'http://localhost:4322'],
+	origin:[process.env.FRONTEND_URL,'http://localhost:4322','http://localhost:4321'],
   credentials: true
 }));
 app.use(express.json());
