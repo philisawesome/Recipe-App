@@ -44,12 +44,14 @@ export const NullUser: User = {
 	username: "",
 	name: "",
 	id: "",
+	avatar:"",
 }
 
 export type User = {
 	username: string
 	name: string
 	id: "",
+	avatar: "",
 }
 
 export const loggedIn = atom(false)
@@ -73,6 +75,9 @@ export const login = (token?: string, user?: User) => {
 		localStorage.setItem('username', user.username)
 		localStorage.setItem('name', user.name)
 		localStorage.setItem('userid', user.id)
+		localStorage.setItem('avatar', user.avatar)
+
+
 		my_username.set(user.username)
 	} else {
 		const u = localStorage.getItem('username')

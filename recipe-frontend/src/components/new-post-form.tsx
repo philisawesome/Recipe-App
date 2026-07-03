@@ -38,7 +38,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { custom, z } from "zod";
-const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg"];
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
+const MAX_FILE_SIZE = 5000000;
 
 const FormSchema = z.object({
   recipeTitle: z.string().min(2, {
@@ -51,10 +57,13 @@ const FormSchema = z.object({
     })
     .refine(
       (files) => {
-        return files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type));
+        return files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file?.type));
       },
-      { message: "Only PNG and JPEG images are allowed." },
-    ),
+      { message: "Only .jpg, .jpeg, .png and .webp formats are supported." },
+    )
+    .refine((files) => files.every((file) => file?.size <= MAX_FILE_SIZE), {
+      message: `Max file size is 5MB.`,
+    }),
 
   summary: z.string().max(200, {
     message: "Summary can't be more than 200 characters",

@@ -229,6 +229,7 @@ export default function RecipePost() {
               username: res.data.user.username,
               name: res.data.user.name,
               id: res.data.user._id,
+              avatar: res.data.user.avatar,
             });
             setLoading(false);
           });
@@ -276,7 +277,7 @@ export default function RecipePost() {
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
-      <div className="text-center flex flex-col items-center">
+      <div className="text-center flex flex-col items-center mb-2">
         <h1>
           {loading ? (
             <Skeleton className="h-10 w-[400px] rounded-full" />
@@ -284,7 +285,13 @@ export default function RecipePost() {
             postData.title
           )}
         </h1>
-        <AvatarCard user={user} />
+        <AvatarCard
+          user={user}
+          showName={false}
+          onClickFunc={() => {
+            redirect.set(`/profile?user=${user.username}`);
+          }}
+        />
       </div>
 
       <div className="w-full">
@@ -304,8 +311,6 @@ export default function RecipePost() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
         </Carousel>
         <div className="flex justify-center gap-2 mt-2">
           {Array.from(postData.image).map((img, key) => (
@@ -403,7 +408,7 @@ export default function RecipePost() {
                 <div className="flex items-center gap-3" key={index}>
                   <input
                     type="checkbox"
-                    className="w-4 h-4 accent-[#D85A30] m-2"
+                    className="w-4 h-4 accent-[#D85A30] m-2 cursor-pointer"
                   />
                   <span>{step}</span>
                 </div>

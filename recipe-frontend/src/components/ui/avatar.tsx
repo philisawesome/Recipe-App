@@ -1,5 +1,5 @@
-import * as React from "react"
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
+import * as React from "react";
+import * as AvatarPrimitive from "@radix-ui/react-avatar";
 
 function Avatar({
   className,
@@ -11,7 +11,7 @@ function Avatar({
       className={`relative flex size-8 shrink-0 overflow-hidden rounded-full ${className}`}
       {...props}
     />
-  )
+  );
 }
 
 function AvatarImage({
@@ -24,7 +24,7 @@ function AvatarImage({
       className={`aspect-square size-full ${className}`}
       {...props}
     />
-  )
+  );
 }
 
 function AvatarFallback({
@@ -37,7 +37,7 @@ function AvatarFallback({
       className={`bg-muted flex size-full items-center justify-center rounded-full ${className}`}
       {...props}
     />
-  )
+  );
 }
 
-export { Avatar, AvatarImage, AvatarFallback }
+export { Avatar, AvatarImage, AvatarFallback };

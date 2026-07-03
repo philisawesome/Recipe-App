@@ -119,7 +119,7 @@ export default function SignupForm() {
           id: res.data.user.id,
         };
         login(res.data.access_token, user);
-        redirect.set(`/profile?user=${user.username}`);
+        redirect.set("/profilepic?from=signup");
       })
       .catch((e) => {
         console.log(e.response.data.error);
