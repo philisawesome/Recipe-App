@@ -1,6 +1,7 @@
 import express from "express"
 const router = express.Router()
 import auth from "../middleware/auth.js"
+import {optionalAuth} from "../middleware/auth.js"
 import commentCtrl from "../controllers/commentCtrl.js"
 
 router.post('/comment',auth , commentCtrl.createComment);
@@ -11,5 +12,7 @@ router.route('/comment/:id')
 
 router.patch('/comment/:id/like', auth , commentCtrl.likeComment);
 router.patch('/comment/:id/unLike', auth , commentCtrl.unLikeComment);
+
+router.get('/comment/:id/replies', optionalAuth, commentCtrl.getReplies);
 
 export default router

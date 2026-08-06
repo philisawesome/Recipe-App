@@ -2,6 +2,7 @@ import Posts from "../models/postModel.js";
 import Comments from "../models/commentModel.js";
 import Users from "../models/userModel.js";
 import mongoose from "mongoose";
+import { commentsWithLikedField } from "./commentCtrl.js"
 function escapeRegex(str=""){
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -86,17 +87,17 @@ export async function getPosts(req, res){
                 populate: {path: 'user', select: 'avatar username'}
             })
             .lean();
-            // if posts === limit there are more ppost
-            const hasMore = posts.length === limit;
-            res.status(200).json({
-                msg:'Successful',
-                page,
-                limit,
-                hasMore,
-                result: posts.length,
-                posts
 
-            });
+		// if posts === limit there are more ppost
+		const hasMore = posts.length === limit;
+		res.status(200).json({
+			msg:'Successful',
+			page,
+			limit,
+			hasMore,
+			result: posts.length,
+			posts
+		});
     }catch(err){
         console.error(err);
         res.status(500).json({error: 'Server Error'});
@@ -207,29 +208,37 @@ export async function getPost(req, res){
 
         const commentLimit = Math.min(parseInt(req.query.commentsLimit) || 10, 50);
 
-        const post =  await Posts.findById(req.params.id)
-        .populate('user')
-        .populate('user likes', 'avatar username ')
-        .populate({
-            path:'comments',
-			match: {replyTo: null}, // top level comments
-            options:{sort:{createdAt: -1}, limit: commentLimit},
-            select:'content user createdAt',
-            populate:{path:'user', select:'username avatar'}
-        })
-        .lean();
+        let post =  await Posts.findById(req.params.id)
+			.populate('user')
+			.populate('user likes', 'avatar username ')
+			.populate({
+				path:'comments',
+				match: {replyTo: null}, // top level comments
+				options:{sort:{createdAt: -1}, limit: commentLimit},
+				select:'content user createdAt numReplies numLikes likes',
+				populate:{path:'user', select:'username avatar'}
+			})
+			.lean();
+
+        if (!post) return res.status(404).json({error:'Post does not exist.'});
+
 
 		let liked = false;
 		if (req.user) {
+			// todo do we need to call findby again? can we reuse post from before?
 			const postLikedByUser = await Posts.findById(req.params.id).find({
 				likes: { $elemMatch: { $eq: req.user._id } }
 			})
 			if (postLikedByUser != null && postLikedByUser.length > 0) {
 				liked = true
 			}
+
+			post = {
+				...post,
+				comments: commentsWithLikedField(post.comments, req.user),
+			};
 		}
 
-        if (!post) return res.status(404).json({error:'Post does not exist.'});
 
         res.status(200).json({
             post,
