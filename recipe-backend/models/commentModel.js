@@ -1,8 +1,8 @@
 import mongoose from "mongoose"
 
 const commentSchema = new mongoose.Schema({
-    content: {
-        type: String,
+	content: {
+    	type: String,
         required:true,
         maxlength: 2000
     },
@@ -12,37 +12,42 @@ const commentSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'User',
         required: true,
-        index: true
-     },
-     //where it exist 
-     post: {
-        type: mongoose.Schema.Types.ObjectId, 
-        ref:'Post',
-        required: true,
-        index: true
-     },
-     //owner of post
-     postUser:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        index: true 
-     },
-     //threading
-     replyTo:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment',
-        default:null,
-        index:true
-     },
-     likes:{
-        type:[{type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'}],
-        default: []
-
-     }
-
-
+    	index: true
+	},
+	//where it exist 
+	post: {
+		type: mongoose.Schema.Types.ObjectId, 
+		ref:'Post',
+		required: true,
+		index: true
+	},
+	//owner of post
+	postUser:{
+		type:mongoose.Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+		index: true 
+	},
+	//threading
+	replyTo:{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Comment',
+		default:null,
+		index:true
+	},
+	likes:{
+		type:[{type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'}],
+		default: []
+	},
+	numLikes: {
+		type: Number,
+		default: 0,
+	},
+	numReplies: {
+		type: Number,
+		default: 0,
+	}
 },
 {timestamps:true}
 );

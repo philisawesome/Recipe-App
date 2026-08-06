@@ -1,5 +1,6 @@
 import Posts from "../models/postModel.js";
 import Comments from "../models/commentModel.js";
+import Users from "../models/userModel.js";
 import mongoose from "mongoose";
 
 const isId = v => mongoose.isValidObjectId(v);
@@ -25,17 +26,27 @@ export async function createComment (req, res){
             }
             const parent = await Comments.findById(reply).select('post');
             if(!parent) return res.status(404).json({error:'Comment does not exist.'});
+			await Comments.findOneAndUpdate(
+				{_id: reply},
+				{$inc: { numReplies: 1}}
+			)
+
             if(String(parent.post)!== String(post._id)){
                 return res.status(400).json({error:'Parent comments belongs to a different post'});
             }
         }
-        const newComment = await Comments.create({
+        let newComment = await Comments.create({
             user: req.user._id,
             content:content.trim(),
             replyTo: reply || null, 
             post: post._id,
             postUser: post.user
-        });
+        }) 
+
+		const user = await Users.findById(req.user._id)
+			.select('username avatar');
+
+		newComment.user = user
 
         await Posts.updateOne({_id:post._id}, {$addToSet:{comments:newComment._id}});
     
@@ -47,10 +58,42 @@ export async function createComment (req, res){
         console.error(err);
         res.status(500).json({error:'Server Error'});
     }
-
-
 }
-export async function updateComment (req,res){
+
+// populate 'liked' comments by this user
+// todo show if any of your following has liked this post
+export function commentsWithLikedField(comments, user) {
+	if (!user) return comments;
+
+	return comments.map(({likes, ...comment}) => ({
+		...comment,
+		liked: likes.some((id) => id.equals(user._id)),
+	}))
+}
+
+export async function getReplies(req, res) {
+	// todo paginate
+	try {
+		if (!isId(req.params.id)) 
+			return res.status(400).json({ error: "Invalid comment id." });
+
+		let replies = await Comments.find({
+			replyTo: req.params.id,
+		})
+        .populate('user', 'username avatar')
+		.sort({createdAt: -1})
+		.lean();
+
+		replies = commentsWithLikedField(replies, req.user)	
+
+		res.json(replies)
+	} catch (err) {
+        console.error(err);
+        res.status(500).json({error: 'Server Error'});
+    }
+}
+
+export async function updateComment(req,res) {
     try{
         const {content = ''}  =req.body || {};
         if (!isId(req.params.id)) return res.status(400).json({ error: "Invalid comment id." });
@@ -117,8 +160,8 @@ export async function likeComment(req,res){
         if (!isId(req.params.id)) return res.status(400).json({ error: "Invalid comment id." });
 
         const updated = await Comments.findOneAndUpdate(
-            {_id: req.params.id},
-            {$addToSet: {likes: req.user._id}},
+            {_id: req.params.id, likes: { $ne: req.user._id }},
+            {$addToSet: {likes: req.user._id}, $inc: {numLikes: 1}},
             {new:true}
         );
 
@@ -139,8 +182,8 @@ export async function unLikeComment (req, res){
         if (!isId(req.params.id)) return res.status(400).json({ error: "Invalid comment id." });
 
         const updated = await Comments.findOneAndUpdate(
-            {_id: req.params.id},
-            {$pull: {likes: req.user._id}},
+            {_id: req.params.id, likes: { $eq: req.user._id }},
+            {$pull: {likes: req.user._id}, $inc: {numLikes: -1}},
             {new:true}
         );
         if (!updated){
@@ -161,5 +204,6 @@ export default {
     updateComment:updateComment, 
     deleteComment:deleteComment,
     likeComment:likeComment,
-    unLikeComment:unLikeComment
+    unLikeComment:unLikeComment,
+    getReplies:getReplies,
 }
