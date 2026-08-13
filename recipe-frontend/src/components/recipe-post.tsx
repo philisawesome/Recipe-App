@@ -159,10 +159,9 @@ function Settings({ deletePost, user, loading }: PostActionProps) {
 }
 
 export default function RecipePost() {
-  // --- liking: using partner's approach (backend tells us if we've already liked) ---
   const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(0);
-  const [likeLoading, setLikeLoading] = useState(false); // kept from your version, spam-click guard
+  const [likeLoading, setLikeLoading] = useState(false);
 
   const [user, setUser] = useState<User>(NullUser);
   const [postData, setPostData] = useState<PostData>(defaultData);
@@ -217,7 +216,7 @@ export default function RecipePost() {
         .then((res) => {
           const post = res.data.post;
 
-          setPostData({
+          setPostData(() => ({
             ...postData,
             title: post.title,
             author: post.user.username,
@@ -232,8 +231,8 @@ export default function RecipePost() {
             mins: post.mins,
             serving: post.serving,
             difficulty: post.difficulty,
-            comments: post.comments,
-          });
+            comments: [...post.comments],
+          }));
 
           setLiked(res.data.liked);
           setNumLikes(post.likes?.length || 0);
@@ -296,7 +295,7 @@ export default function RecipePost() {
           {loading ? (
             <Skeleton className="h-10 w-[400px] rounded-full" />
           ) : (
-            postData.title
+            postData?.title
           )}
         </h1>
         <AvatarCard
@@ -438,7 +437,7 @@ export default function RecipePost() {
             <div className="flex-row items-center gap-4">
               {postData.instructions.map((step, index) => (
                 <div className="flex gap-3 mb-2" key={index}>
-                  <div className="rounded-full bg-[#D85A30] text-white flex items-center justify-center w-7 h-7 shrink-0">
+                  <div className="rounded-full bg-red-orange text-white flex items-center justify-center w-7 h-7 shrink-0">
                     {index + 1}
                   </div>
                   <div>{step}</div>
@@ -448,7 +447,10 @@ export default function RecipePost() {
           )}
         </div>
 
-        <CommentSection comments={postData.comments || []} />
+        <CommentSection
+          comments={postData.comments}
+          setPostData={setPostData}
+        />
       </div>
     </div>
   );
