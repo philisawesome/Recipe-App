@@ -119,7 +119,7 @@ export default function NewProfilePic() {
                   <input
                     className="text-sm 
 								outline-1
-								p-2 rounded-sm"
+								p-2 rounded-sm cursor-pointer"
                     name="photo"
                     type="file"
                     onChange={(e) => {
@@ -137,7 +137,7 @@ export default function NewProfilePic() {
           <div className="flex justify-center items-center">
             {from ? (
               <Button
-                className="bg-(--color-1) w-fit"
+                className="bg-(--color-1) w-fit cursor-pointer"
                 onClick={() => {
                   redirect.set(`/profile?user=${username}`);
                 }}
@@ -146,7 +146,7 @@ export default function NewProfilePic() {
               </Button>
             ) : null}
             <Button
-              className="bg-(--color-1) w-fit"
+              className="bg-(--color-1) w-fit cursor-pointer"
               type="submit"
               value="submit"
               disabled={loading}

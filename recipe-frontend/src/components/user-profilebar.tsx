@@ -1,8 +1,14 @@
 import { AvatarCard } from "./avatar-card";
-import { Button } from "./ui/button";
 import { Toggle } from "./ui/toggle";
+import Box from "@mui/material/Box";
+import Scroll from "./ui/infinite-scroll";
 import { useState, useEffect } from "react";
-
+import { Button } from "./ui/button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import { useStore } from "@nanostores/react";
 import {
   type User,
@@ -15,7 +21,340 @@ import {
 import { API_URL, getURLParams } from "./utils";
 import type PostThumbnail from "./post-thumbnail.tsx";
 import Post from "./post-thumbnail.tsx";
+type FollowerPreview = {
+  username: string;
+  avatar: string;
+  followed: boolean;
+  _id: string;
+};
 
+function FollowersPopup(props: { userId: string }) {
+  const [open, setOpen] = useState(false);
+  const handleClickOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const $loggedIn = useStore(loggedIn);
+  const $my_username = useStore(my_username);
+
+  const [followerArr, setFollowerArr] = useState<FollowerPreview[]>([]);
+  const [followerCount, setFollowerCount] = useState<number>(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [skip, setSkip] = useState(0);
+
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  function RenderItem(follower: FollowerPreview) {
+    return (
+      <div className="flex items-center justify-between ">
+        <a
+          className="flex items-center gap-2 mb-2"
+          href={`/profile?user=${follower.username}`}
+        >
+          <img
+            loading="lazy"
+            className="relative flex size-16 shrink- 0 overflow-hidden rounded-full"
+            src={follower.avatar}
+          ></img>
+          <h3>{follower.username}</h3>
+        </a>
+        {$loggedIn && $my_username === follower.username ? null : (
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={() => {
+              if (!follower.followed) {
+                api
+                  .post(
+                    `${API_URL}/profile/${follower._id}/follow`,
+                    {},
+                    {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      },
+                    },
+                  )
+                  .then((res) => {
+                    if (res.status === 200) {
+                      //setRefreshKey((k) => k + 1);
+                      const newArray = followerArr.map((item) => {
+                        if (item._id === follower._id) {
+                          item.followed = true;
+                        }
+                        return item;
+                      });
+                      setFollowerArr([...newArray]);
+                    }
+                  })
+
+                  .catch((e) => {
+                    console.log(e);
+                  });
+              } else {
+                api
+                  .delete(`${API_URL}/profile/${follower._id}/unfollow`, {
+                    headers: {
+                      Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                  })
+                  .then((res) => {
+                    if (res.status === 200) {
+                      //setRefreshKey((k) => k + 1);
+                      const newArray = followerArr.map((item) => {
+                        if (item._id === follower._id) {
+                          item.followed = false;
+                        }
+                        return item;
+                      });
+                      setFollowerArr([...newArray]);
+                    }
+                  })
+                  .catch((e) => {
+                    console.log(e);
+                  });
+              }
+            }}
+          >
+            {follower.followed ? "Unfollow" : "Follow"}
+          </Button>
+        )}
+      </div>
+    );
+  }
+  useEffect(() => {
+    if (!props.userId) return;
+    api
+      .get(`${API_URL}/profile/${props.userId}/followers`, {
+        params: {
+          skip,
+          limit: 10,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        setHasMore(res.data.hasMore);
+        setFollowerArr((prev) => [...prev, ...res.data.users]);
+        setFollowerCount(res.data.total);
+      });
+  }, [props.userId /*refreshKey*/, , skip]);
+
+  function fetchMore() {
+    if (hasMore) {
+      setSkip(skip + 10);
+    } else {
+      return;
+    }
+  }
+  return (
+    <div>
+      <Button className="cursor-pointer" onClick={handleClickOpen}>
+        {followerCount}
+      </Button>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        role="alertdialog"
+        slotProps={{
+          paper: {
+            sx: {
+              minWidth: "900px",
+              minHeight: "600px",
+              borderRadius: "24px",
+              maxWidth: "900px",
+              maxHeight: "600px",
+            },
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontSize: "1.5rem", textAlign: "center" }}>
+          Followers
+        </DialogTitle>
+        <div className="border-gray-385 border-t -my-2"> </div>
+
+        <DialogContent>
+          <Scroll
+            data={followerArr}
+            fetchMore={fetchMore}
+            hasMore={hasMore}
+            renderItem={RenderItem}
+          ></Scroll>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleClose} autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
+
+function FollowingPopup(props: { userId: string }) {
+  const $loggedIn = useStore(loggedIn);
+  const $my_username = useStore(my_username);
+
+  const [open, setOpen] = useState(false);
+  const handleClickOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const [followingArr, setFollowingArr] = useState<FollowerPreview[]>([]);
+  const [followingCount, setFollowingCount] = useState<number>(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [skip, setSkip] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  function RenderItem(follower: FollowerPreview) {
+    return (
+      <div className="flex items-center justify-between ">
+        <a
+          className="flex items-center gap-2 mb-2"
+          href={`/profile?user=${follower.username}`}
+        >
+          <img
+            loading="lazy"
+            className="relative flex size-16 shrink- 0 overflow-hidden rounded-full"
+            src={follower.avatar}
+          ></img>
+          <h3>{follower.username}</h3>
+        </a>
+        {$loggedIn && $my_username === follower.username ? null : (
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={() => {
+              if (!follower.followed) {
+                api
+                  .post(
+                    `${API_URL}/profile/${follower._id}/follow`,
+                    {},
+                    {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      },
+                    },
+                  )
+                  .then((res) => {
+                    if (res.status === 200) {
+                      //setRefreshKey((k) => k + 1);
+                      const newArray = followingArr.map((item) => {
+                        if (item._id === follower._id) {
+                          item.followed = true;
+                        }
+                        return item;
+                      });
+                      setFollowingArr([...newArray]);
+                    }
+                  })
+
+                  .catch((e) => {
+                    console.log(e);
+                  });
+              } else {
+                api
+                  .delete(`${API_URL}/profile/${follower._id}/unfollow`, {
+                    headers: {
+                      Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                  })
+                  .then((res) => {
+                    if (res.status === 200) {
+                      //setRefreshKey((k) => k + 1);
+                      const newArray = followingArr.map((item) => {
+                        if (item._id === follower._id) {
+                          item.followed = false;
+                        }
+                        return item;
+                      });
+                      setFollowingArr([...newArray]);
+                    }
+                  })
+                  .catch((e) => {
+                    console.log(e);
+                  });
+              }
+            }}
+          >
+            {follower.followed ? "Unfollow" : "Follow"}
+          </Button>
+        )}
+      </div>
+    );
+  }
+  useEffect(() => {
+    if (!props.userId) return;
+    api
+      .get(`${API_URL}/profile/${props.userId}/following`, {
+        params: {
+          skip,
+          limit: 10,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        setHasMore(res.data.hasMore);
+
+        setFollowingArr((prev) => [...prev, ...res.data.users]);
+        setFollowingCount(res.data.total);
+      });
+  }, [props.userId, refreshKey, skip]);
+
+  function fetchMore() {
+    if (hasMore) {
+      setSkip(skip + 10);
+    } else {
+      return;
+    }
+  }
+  return (
+    <div>
+      <Button className="cursor-pointer" onClick={handleClickOpen}>
+        {followingCount}
+      </Button>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        role="alertdialog"
+        slotProps={{
+          paper: {
+            sx: {
+              minWidth: "900px",
+              minHeight: "600px",
+              borderRadius: "24px",
+              maxWidth: "900px",
+              maxHeight: "600px",
+            },
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontSize: "1.5rem", textAlign: "center" }}>
+          Following
+        </DialogTitle>
+        <div className="border-gray-385 border-t -my-2"> </div>
+
+        <DialogContent>
+          <Scroll
+            data={followingArr}
+            fetchMore={fetchMore}
+            hasMore={hasMore}
+            renderItem={RenderItem}
+          ></Scroll>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
 export default function UserProfileBar(props: {}) {
   const [followed, setFollowed] = useState(false);
   const [user, setUser] = useState<User>(NullUser);
@@ -25,8 +364,6 @@ export default function UserProfileBar(props: {}) {
 
   useEffect(() => {
     let params = getURLParams();
-
-    console.log(params);
     api
       .get(`${API_URL}/username/${params.user}`, {
         params: { follower_username: $my_username },
@@ -113,6 +450,11 @@ export default function UserProfileBar(props: {}) {
           {followed ? "Unfollow" : "Follow"}
         </Button>
       )}
+      <div className="flex items-center">
+        {" "}
+        <FollowersPopup userId={user.id}></FollowersPopup>
+        <FollowingPopup userId={user.id}></FollowingPopup>
+      </div>
     </div>
   );
 }

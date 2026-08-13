@@ -63,6 +63,23 @@ const defaultData: PostData = {
   comments: [],
 };
 
+function UseLoading() {
+  const [loading, setLoading] = useState(false);
+  const egg = (
+    <div>
+      {loading && (
+        <img
+          id="egg"
+          className="absolute"
+          alt="spinning egg"
+          src="/egg.svg"
+          width="200px"
+        />
+      )}
+    </div>
+  );
+  return [setLoading, egg];
+}
 type PostActionProps = {
   deletePost: () => Promise<void>;
   user: User;
@@ -160,7 +177,6 @@ export default function RecipePost() {
 
   const $loggedIn = useStore(loggedIn);
 
-  // --- liking: partner's apiSetLiked, with your loading guard added ---
   async function apiSetLiked(postId: string, newLiked: boolean) {
     setLikeLoading(true);
     try {
@@ -207,8 +223,6 @@ export default function RecipePost() {
             author: post.user.username,
             authorId: post.user._id,
             image: post.images,
-            // partner's approach: backend already tells us if liked,
-            // so we don't double count it here
             likes: post.likes?.length - (res.data.liked ? 1 : 0),
             instructions: post.instructions,
             ingredients: post.ingredients,
