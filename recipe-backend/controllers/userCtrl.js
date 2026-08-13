@@ -67,7 +67,8 @@ export async function getTheirProfileByUsername(req, res) {
 			.findOne({
 				'username': req.query.follower_username,
 				'following': {$elemMatch: { $eq: user._id}},
-			}).lean();
+			}
+    ).lean();
 
 			if (follower) following = true;
 		}
@@ -197,14 +198,19 @@ export async function unfollowUser(req, res) {
  */
 export async function getFollowers(req, res) {
   try {
+    const meId = req.user?._id?.toString();
+
     const { id } = req.params;
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({ error: "Not valid Id" });
     }
     const skip = Number(req.query.skip) || 0;
     const limit = Math.min(Number(req.query.limit) || 10, 50);
+    const objId = mongoose.Types.ObjectId.createFromHexString(id);
 
-    const [user, counted] = await Promise.all([
+    const [listOfFollowing, user, counted] = await Promise.all([
+      User.findById(meId)
+        .select("following"),
       User.findById(id)
         .select("followers")
         .populate({
@@ -214,10 +220,15 @@ export async function getFollowers(req, res) {
         })
         .lean(),
       User.aggregate([
-        { $match: { _id: id } },
+        { $match: { _id: objId } },
         { $project: { _id: 0, total: { $size: "$followers" } } }
       ])
     ]);
+    const followingID = listOfFollowing.following.map(id => id.toString())
+    const iFollow = user.followers.map( acc => {
+      const followed = followingID.includes(acc._id.toString())
+      return {...acc, followed}
+    })
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -226,7 +237,7 @@ export async function getFollowers(req, res) {
     const hasMore = skip + pageSize < total;
 
     return res.json({
-      users: user.followers,
+      users: iFollow,
       pageSize,
       total,
       skip,
@@ -245,14 +256,19 @@ export async function getFollowers(req, res) {
  */
 export async function getFollowing(req, res) {
   try {
+    const meId = req.user?._id?.toString();
     const { id } = req.params;
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({ error: "Not valid Id" });
     }
+    const objId = mongoose.Types.ObjectId.createFromHexString(id);
+
     const skip = Number(req.query.skip) || 0;
     const limit = Math.min(Number(req.query.limit) || 10, 50);
 
-    const [user, counted] = await Promise.all([
+    const [listOfFollowing, user, counted] = await Promise.all([
+      User.findById(meId)
+        .select("following"),
       User.findById(id)
         .select("following")
         .populate({
@@ -262,19 +278,24 @@ export async function getFollowing(req, res) {
         })
         .lean(),
       User.aggregate([
-        { $match: { _id: id } },
+        { $match: { _id: objId } },
         { $project: { _id: 0, total: { $size: "$following" } } }
       ])
     ]);
+    const followingID = listOfFollowing.following.map(id => id.toString())
+    
+    const iFollow = user.following.map( acc => {
+      const followed = followingID.includes(acc._id.toString())
+      return {...acc, followed}
+    })
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const total = counted[0]?.total ?? 0;
     const pageSize = user.following.length;
     const hasMore = skip + pageSize < total;
-
-    return res.json({
-      users: user.following,
+    return res.status(200).json({
+      users: iFollow,
       pageSize,
       total,
       skip,
@@ -286,6 +307,30 @@ export async function getFollowing(req, res) {
     return res.status(500).json({ error: "Server Error" });
   }
 }
+export async function setProfilePic(req ,res ){
+  try{
+    const meId = req.user?._id?.toString();
+    const newPic = req.body.images?.[0]
+    if (!meId) {
+      return res.status(401).json({ error: "Not authenticated" });
+      }
+    await User.findByIdAndUpdate(
+      meId,
+        { avatar: newPic },
+      ).lean()
+
+      return res.json({
+        message: 'profile pic changed'
+      })
+    
+
+  }catch(err){
+    console.error(err)
+    return res.status(500).json({ error: "Server Error" });
+
+  }
+
+}
 
 export default {
   searchUser:searchUser,
@@ -296,4 +341,6 @@ export default {
   unfollowUser:unfollowUser,
   getFollowers:getFollowers,
   getFollowing:getFollowing,
+  setProfilePic:setProfilePic,
+  
 };

@@ -79,6 +79,7 @@ export async function register(req, res){
                 name:newUser.name,
                 username: newUser.username,
                 email: newUser.email,
+                avatar:newUser.avatar,
                 createdAt: newUser.createdAt
 
             }
@@ -117,7 +118,7 @@ export async function login (req, res){
             return res.status(401).json({
                 error:"Username or Password is incorrect"
             });
-    
+
        }
        //creates tokens
         const access_token = createAccessToken({ id: user._id});
@@ -130,7 +131,6 @@ export async function login (req, res){
             path: "/",
             maxAge: 30 * 24 * 60 * 60 * 1000
         });
-
         return res.status(200).json({
             msg:"Login successful",
             access_token,
@@ -139,6 +139,7 @@ export async function login (req, res){
                 name: user.name,
                 username: user.username,
                 email:user.email,
+                avatar: user.avatar,
                 createdAt:user.createdAt
             }
             

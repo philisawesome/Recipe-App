@@ -69,8 +69,8 @@ req.body.images = [`https://d8c4belvva8tv.cloudfront.net/content/${fileuid}`]
 	try {
 
 		const multiImg = req.files
-		for (let i = 0; i < multiImg.length; i++ ){
-			let ext = multiImg[i].mimetype;
+		for (let i = 0; i < multiImg?.length; i++ ){
+			let ext = multiImg?.[i].mimetype;
 			if (ext != "image/png" && ext != "image/jpeg") {
 				throw `Images must be png or jpg but got ${multiImg[i].mimetype}`
 			} 
