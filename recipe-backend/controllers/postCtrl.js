@@ -372,7 +372,7 @@ export async function getSavedPost(req,res){
 export async function searchPost(req, res){
     try{
     const raw = (req.query.q ?? '');
-    if (!raw) return res.json({posts: []});
+    if (!raw) return res.status(404).json({error: 'no query'});
     const q = escapeRegex(raw.slice(0,30));
     const limit = Math.min(Number(req.query.limit)|| 10,20);
 
