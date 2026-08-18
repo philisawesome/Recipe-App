@@ -100,7 +100,7 @@ export default function NewProfilePic() {
 
   return (
     <div
-      className="border-2 w-lg p-4 rounded-lg border-solid flex flex-col
+      className="border-2 w-full md:w-lg p-4 rounded-lg border-solid flex flex-col
       items-center mx-auto"
     >
       <Form {...form}>
