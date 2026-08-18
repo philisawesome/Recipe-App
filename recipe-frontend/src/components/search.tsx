@@ -176,10 +176,10 @@ export function SearchWithAutocomplete(props: {
 				/>
 		</div>
 
-		{!showSuggestions && <div className="w-2xl mt-5 flex flex-col items-center">
+		{!showSuggestions && <div className="w-full md:w-2xl mt-5 flex flex-col items-center">
 			{searching && (
 				query ?
-					<div className="w-md flex flex-col">
+					<div className="w-fit flex flex-col">
 						{results.map((s, i) => <SearchSuggestion key={i} result={s}/>)}
 					</div>
 				:
@@ -267,7 +267,7 @@ function Searchbar(props: {
 					onBlur={() => setIsFocused(false)}
 				/>
 
-				{showSuggestions && isFocused && <AutocompleteSuggestions suggestions={results} />}
+				{showSuggestions && <AutocompleteSuggestions focused={isFocused} suggestions={results} />}
 			</div>
 
 			{/*!noFilter && <Popover>
@@ -312,8 +312,7 @@ function ToggleGroupSelector(props: {selected, setSelected, options: string[]}) 
   	</Field>)
 }
 
-function AutocompleteSuggestions(props: { suggestions, className, titleOnly }) {
-	const { suggestions, className, titleOnly } = props
+function AutocompleteSuggestions({ suggestions, className, titleOnly, focused }) {
 
 	if (suggestions.length === 0) return null;
 
@@ -322,6 +321,7 @@ function AutocompleteSuggestions(props: { suggestions, className, titleOnly }) {
 			absolute top-full left-0 right-0 mt-1 w-full
 			bg-white border border-gray-200 rounded-xl shadow-md
 			${className}
+			${!focused && ''}
     	`}
 	>
     	{suggestions.map((result, index) => (<div
@@ -336,12 +336,34 @@ function AutocompleteSuggestions(props: { suggestions, className, titleOnly }) {
 	);
 };
 
-function SearchSuggestion({result, titleOnly}: props) {
-	const r = result
-	return <a href={r.link} className="hover:bg-gray-100">
+function SearchSuggestion({result: r, titleOnly}: props) {
+	const ref = useRef(null);
+	const [isVisible, setIsVisible] = useState(true);
+
+	useOnClickOutside(ref, () => setIsVisible(false));
+
+	return isVisible ? <a ref={ref} href={r.link} className={`hover:bg-gray-100`}
+	>
 		<div className="flex flex-col p-2 w-full items-start h-fit hover:bg-gray-100">
 			<p>{r.title}</p>
 			{!titleOnly && <p>{r.description}</p>}
 		</div>
-	</a>
+	</a> : null
+}
+
+function useOnClickOutside(ref, handler) {
+  useEffect(() => {
+    const listener = (event) => {
+      if (!ref.current || ref.current.contains(event.target)) return;
+      handler(event);
+    };
+
+    document.addEventListener("mousedown", listener);
+    document.addEventListener("touchstart", listener); // Mobile support
+
+    return () => {
+      document.removeEventListener("mousedown", listener);
+      document.removeEventListener("touchstart", listener);
+    };
+  }, [ref, handler]);
 }

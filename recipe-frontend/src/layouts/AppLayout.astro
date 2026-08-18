@@ -3,11 +3,14 @@ import "../styles/global.css";
 import { ProfilePic } from "../components/avatar-card"
 import { SearchWithAutocomplete } from "../components/search"
 import { Font } from "astro:assets";
+import Navbar from "../pages/partials/navbar.astro"
 ---
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />		
+		<title>Stovetop</title>
+		<link rel="icon" type="image/svg" href="/egg.svg">
 		<link rel="preconnect" href="https://fonts.googleapis.com"/>
 		<link rel="preconnect" href="https://fonts.gstatic.com"/>
 		<link href="https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Marck+Script&display=swap" rel="stylesheet"/>
@@ -36,29 +39,29 @@ import { Font } from "astro:assets";
 	</head>
 	<body>
 		{/* <SidebarWrapper client:load/> */}
-		<div class="z-2 pt-10 w-[1000px]">
-			<div class="absolute top-0 left-0 z-4 navbar w-screen flex justify-center items-center">
+		<div class="z-2 pt-6 md:pt-10 w-full px-0 md:px-5 md:w-[50rem]">
+			<div class="fixed top-0 left-0 z-4 navbar w-screen flex items-center md:justify-center z-6">
+				<img id="egg" class="mx-2" src="/egg.svg" width="35px"/>
 				<a href="/" class="flex mr-2">
-					<img id="egg" class="mr-2" src="/egg.svg" width="35px"/>
 					<h1 class="title title-font text-center">Stovetop</h1>
 				</a>
 
-				<SearchWithAutocomplete collapsible noFilter showSuggestions type="Recipes" client:load/>
-
-				<a class="nav-link" href="/about">About</a>
-
-				<a data-auth-required="false" class="nav-link" href="/login">Login</a>
-				<a data-auth-required="false" class="nav-link" href="/signup">Signup</a>
-				<a data-auth-required="true" class="nav-link" href="/new-post">New Post</a>
-				<a data-auth-required="true" class="nav-link" id="logout">Logout</a>
+				<div class="hidden md:flex">
+					<Navbar/>
+				</div>
 
 				<div data-auth-required="true">
-					<a class="absolute block top-0 right-0 flex items-center" id="username-link">
-						<p class="text-white" id="username-text">yo</p>
+					<a class="absolute h-full mr-2 top-0 right-0 flex justify-center items-center" id="username-link">
+						<p class="text-white text-sm w-[6rem] text-right overflow-clip md:text-lg" id="username-text">yo</p>
 						<ProfilePic data-username="hi" client:load/>
 					</a>
 				</div>
 			</div>
+
+			<div class="absolute left-0 top-0 py-3 w-full text-center flex flex-col gap-2 text-lg z-5 md:hidden" id="navbar-dropdown" client:load>
+				<Navbar/>
+			</div>
+
 			<slot/>
 		</div>
 		<script is:inline>
@@ -89,6 +92,12 @@ import { Font } from "astro:assets";
 			redirect.set('')
 			return window.location.replace(link);
 		}
+	})
+
+	const navbarDrop = document.getElementById('navbar-dropdown')
+	const eggToggleDrop = document.getElementById('egg')
+	eggToggleDrop.addEventListener('click', () => {
+		navbarDrop.classList.toggle('open')
 	})
 </script>
 </html>
