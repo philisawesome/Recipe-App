@@ -72,8 +72,9 @@ export async function createPost(req, res){
 //feed of me + following
 export async function getPosts(req, res){
     try{
-        const {page, limit, skip}= pagination(req.query);
-        const ids = [...(req.user.following || []), req.user._id];
+
+        const skip = Number(req.query.skip) || 0;
+        const limit = Math.min(Number(req.query.limit) || 10, 50);        const ids = [...(req.user.following || []), req.user._id];
 
         const posts = await Posts.find ( {user:{$in: ids}})
             .sort({createdAt: -1})
@@ -82,17 +83,23 @@ export async function getPosts(req, res){
             .populate('user likes', 'avatar username')
             .populate ({
                 path: 'comments', 
-                options: {sort: {createdAt: -1}, limit: 2},
+                options: {sort: {createdAt: -1}, limit: 10},
                 select: 'content user createdAt',
                 populate: {path: 'user', select: 'avatar username'}
             })
             .lean();
+       const counted = await Posts.countDocuments({user:{$in: ids}})
+        
 
 		// if posts === limit there are more ppost
-		const hasMore = posts.length === limit;
+        const total = counted
+        const pageSize = posts.length
+        const hasMore = skip + pageSize < total;
+
+      
 		res.status(200).json({
 			msg:'Successful',
-			page,
+		
 			limit,
 			hasMore,
 			result: posts.length,
@@ -175,7 +182,9 @@ export async function unLikePost(req, res){
 //post by user
 export async function getUserPosts(req, res){
     try{
-        const {page, limit, skip} = pagination(req.query);
+        const skip = Number(req.query.skip) || 0;
+        const limit = Math.min(Number(req.query.limit) || 9, 50);  
+
         if(!mongoose.isValidObjectId(req.params.id)){
             return res.status(400).json({error:'Invalid user id.'});
         }
@@ -185,11 +194,16 @@ export async function getUserPosts(req, res){
             .skip(skip)
             .limit(limit)
             .lean();
-
-            const hasMore = posts.length === limit; 
         await Posts.populate(posts, { path: 'likes', select: 'avatar username' })
 
-            res.status(200).json({page, limit, hasMore, result: posts.length,posts});
+
+        const counted = await Posts.countDocuments({user:{$in: req.params.id}})
+
+        const total = counted
+        const pageSize = posts.length
+        const hasMore = skip + pageSize < total;
+
+        res.status(200).json({ limit, hasMore, result: posts.length,posts});
 
 
     }catch(err){
@@ -255,19 +269,47 @@ export async function getPost(req, res){
 //random post
 export async function getPostDiscover (req, res){
     try {
-        const exclude = req.user ? [...(req.user.following || [] ), req.user._id] : [];
-        const size = parseInt(req.query.num || '8' );
+        const arrID = req.body?.excludedID || []
+        const excludedID = arrID.map((id)=>{
+            return  mongoose.Types.ObjectId.createFromHexString(id);
+        })
 
-        const posts = await Posts.aggregate([
-            {$match: {user: {$nin: exclude}}},
+        const exclude = req.user ? [...(req.user.following || [] ), req.user._id] : [];
+
+
+        const size = parseInt(req.query.num || '8' );
+        let hasMore= false;
+        const [posts, total] = await Promise.all([
+             Posts.aggregate([
+            {$match: 
+            {
+            user: {$nin: exclude},
+            _id: {$nin: excludedID}
+        }},
             {$sample:{ size }}
 
+        ]),
+        Posts.countDocuments({ user: {$nin: exclude},
+            _id: {$nin: excludedID}}
+        ),
         ])
+       
+
+        
+        if (total - posts.length == 0  ){
+            hasMore = false 
+        }
+        else{
+            hasMore =true
+        }
+     
         await Posts.populate(posts, { path: 'user', select: 'avatar username' })
         res.status(200).json({
             msg: 'Success',
             result: posts.length,
-            posts
+            posts,
+            hasMore:hasMore
+
         });
 
     }catch(err){

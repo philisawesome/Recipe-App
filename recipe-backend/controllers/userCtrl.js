@@ -294,6 +294,8 @@ export async function getFollowing(req, res) {
     const total = counted[0]?.total ?? 0;
     const pageSize = user.following.length;
     const hasMore = skip + pageSize < total;
+
+
     return res.status(200).json({
       users: iFollow,
       pageSize,
