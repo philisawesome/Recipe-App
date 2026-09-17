@@ -35,8 +35,8 @@ import { Font } from "astro:assets";
 	</head>
 	<body>
 		{/* <SidebarWrapper client:load/> */}
-		<div class="z-2 pt-10 w-[1000px]">
-			<div class="absolute top-0 left-0 z-4 navbar w-screen flex justify-center">
+		<div class="z-2 w-[1000px]" style="padding-top: var(--navbar-height, 2.5rem);">
+			<div id="navbar" class="fixed top-0 left-0 z-50 navbar w-screen flex justify-center">
 				<a href="/" class="flex">
 					<img id="egg" class="mr-2" src="/egg.svg" width="35px"/>
 					<h1 class="title title-font text-center">Stovetop</h1>
@@ -64,6 +64,15 @@ import { Font } from "astro:assets";
 				user.textContent = username
 				userlink.href = `/profile?user=${username}`
 			}
+		</script>
+		<script is:inline>
+			const navbar = document.getElementById('navbar')
+			function setNavbarHeight() {
+				document.documentElement.style.setProperty('--navbar-height', navbar.offsetHeight + 'px')
+			}
+			setNavbarHeight()
+			window.addEventListener('resize', setNavbarHeight)
+			window.addEventListener('load', setNavbarHeight)
 		</script>
   	</body>
 <script>

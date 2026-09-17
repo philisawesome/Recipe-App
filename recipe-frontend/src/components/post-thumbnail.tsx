@@ -10,6 +10,7 @@ export type PostThumbnail = {
   title: string;
   summary: string;
   likes: number;
+  compact?: boolean;
   //comments: []
 };
 
@@ -24,9 +25,25 @@ export const EmptyPostThumb: PostThumbnail = {
 };
 
 export default function PostThumbnail(props: PostThumbnail) {
-  const { postId, imageUrl, author, title, summary, likes, avatar } = props;
+  const { postId, imageUrl, author, title, summary, likes, avatar, compact } =
+    props;
   const postSizeClass = "w-[100vw] h-[100vw] md:w-[500px] md:h-[500px]";
   api.get;
+
+  if (compact) {
+    if (!postId || !imageUrl) {
+      return <Skeleton className="w-full aspect-square rounded-sm" />;
+    }
+    return (
+      <a href={`/post?id=${postId}`} className="block w-full aspect-square">
+        <img
+          className="w-full h-full object-cover rounded-sm"
+          src={getImgSrc(imageUrl)}
+        />
+      </a>
+    );
+  }
+
   if (!postId || !imageUrl) {
     return <Skeleton className={`${postSizeClass} rounded-lg`} />;
   }

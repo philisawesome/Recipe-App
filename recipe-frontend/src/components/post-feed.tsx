@@ -1,4 +1,5 @@
 import axios from "axios";
+import Scroll from "./ui/infinite-scroll";
 
 import { atom } from "nanostores";
 import { loggedIn, api } from "./auth-store";
@@ -6,7 +7,7 @@ import { useStore } from "@nanostores/react";
 
 import Post from "./post-thumbnail.tsx";
 import { EmptyPostThumb } from "./post-thumbnail.tsx";
-import type PostThumbnail from "./post-thumbnail.tsx";
+import type { PostThumbnail } from "./post-thumbnail.tsx";
 
 import { API_URL } from "./utils";
 import { useState, useEffect } from "react";
@@ -14,67 +15,124 @@ import { useState, useEffect } from "react";
 const activeTab = atom<string>("feed");
 
 function PostsDiscover() {
-  const [postsDiscover, setPostsDiscover] = useState<PostThumbnail>(
-    Array(3).fill(EmptyPostThumb),
-  );
+  const [postsDiscover, setPostsDiscover] = useState<PostThumbnail[]>([]);
+  const [growingArr, setGrowingArr] = useState<PostThumbnail[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [excludedID, setExcludedID] = useState<String[]>([]);
 
   useEffect(() => {
-    api.get(`${API_URL}/postDiscover`).then((res) => {
-      setPostsDiscover(
-        res.data.posts.map((p) => {
-          console.log(p);
-          return {
-            postId: p._id,
-            imageUrl: p.images[0],
-            author: p.user.username,
-            avatar: p.user.avatar,
-            title: p.title,
-            summary: p.content,
-            likes: p.likes?.length ?? 0,
-          };
-        }),
-      );
-    }).catch(() => setPostsDiscover([]));
-  }, []);
+    api
+      .post(
+        `${API_URL}/postDiscover`,
+        { excludedID },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      )
+      .then((res) => {
+        setPostsDiscover(res.data.posts);
+        const exIDs = res.data.posts.map((p) => {
+          return p._id;
+        });
+        setExcludedID((prev) => [...prev, ...exIDs]);
 
-  return <PostsFeed posts={postsDiscover} title={"discover"} />;
+        setGrowingArr((prev) => [...prev, ...res.data.posts]);
+        setHasMore(res.data.hasMore);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  }, [refreshKey]);
+
+  function fetchMore() {
+    console.log(hasMore);
+    if (hasMore) {
+      setRefreshKey((k) => k + 1);
+    }
+  }
+
+  return (
+    <div>
+      <Scroll
+        fetchMore={fetchMore}
+        hasMore={hasMore}
+        data={growingArr}
+        renderItem={RenderItem}
+      ></Scroll>
+    </div>
+  );
 }
 
 function UserPostsFeed() {
-  const [posts, setPosts] = useState<PostThumbnail>([]);
+  const [posts, setPosts] = useState<PostThumbnail[]>([]);
+  const [growingArr, setGrowingArr] = useState<PostThumbnail[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [skip, setSkip] = useState(0);
 
   useEffect(() => {
     api
       .get(`${API_URL}/posts`, {
         params: {
-          page: 1,
-          limit: 2,
+          skip,
+          limit: 10,
         },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
       .then((res) => {
-        setPosts(
-          res.data.posts.map((p) => {
-            console.log(p);
-            return {
-              postId: p._id,
-              imageUrl: p.images[0],
-              author: p.user.username,
-              avatar: p.user.avatar,
-              title: p.title,
-              summary: p.content,
-              likes: p.likes?.length ?? 0,
-            };
-          }),
-        );
-      }).catch(() => setPosts([]));
-  }, []);
+        setPosts(res.data.posts);
+        setGrowingArr((prev) => [...prev, ...res.data.posts]);
+        setHasMore(res.data.hasMore);
 
-  return <PostsFeed posts={posts} />;
+        console.log("this is skip " + skip);
+      })
+      .catch(() => setPosts([]));
+  }, [skip, refreshKey]);
+  function fetchMore() {
+    if (hasMore) {
+      setSkip(skip + 10);
+    } else {
+      setRefreshKey((k) => k + 1);
+    }
+  }
+  return (
+    <div>
+      <Scroll
+        data={growingArr}
+        fetchMore={fetchMore}
+        hasMore={hasMore}
+        renderItem={RenderItem}
+      ></Scroll>
+    </div>
+  );
 }
-
+function RenderItem(post: PostThumbnail, k: number) {
+  return (
+    <div className="mt-3 w-full" key={k}>
+      <div
+        className="grid grid-rows-1 
+			gap-3
+			md:grid-rows-2 md:gap-1
+			justify-items-center
+			2xl:grid-rows-3"
+      ></div>
+      <Post
+        postId={post._id}
+        imageUrl={post.images[0]}
+        author={post.user.username}
+        avatar={post.user.avatar}
+        title={post.title}
+        summary={post.content}
+        likes={post.likes?.length ?? 0}
+      ></Post>
+    </div>
+  );
+}
 function PostsFeed(props: { posts: PostThumbnail[]; title?: string }) {
   const { posts, title } = props;
   return (
@@ -97,9 +155,7 @@ function PostsFeed(props: { posts: PostThumbnail[]; title?: string }) {
               title={p.title}
               summary={p.summary}
               likes={p.likes}
-            >
-              {p.postId}
-            </Post>
+            />
           );
         })}
       </div>
@@ -112,7 +168,10 @@ export function FeedTabs() {
   const $tab = useStore(activeTab);
 
   return (
-    <div className="flex gap-4 pt-3">
+    <div
+      className="sticky z-30 bg-[var(--background)] flex gap-4 pt-3"
+      style={{ top: "var(--navbar-height)" }}
+    >
       {$loggedIn ? (
         <>
           <button

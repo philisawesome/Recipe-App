@@ -50,8 +50,8 @@ export const NullUser: User = {
 export type User = {
 	username: string
 	name: string
-	id: "",
-	avatar: "",
+	id: string
+	avatar: string
 }
 
 export const loggedIn = atom(false)

@@ -89,7 +89,7 @@ function Comment(props: {data: Comment, indent: Number, postFunc: any}) {
 	const [numLikes, setNumLikes] = useState(initialNumLikes)
 
 	return <div className={`flex flex-col pb-4`}>
-		<AvatarCard user={{username: username, id: _id}}/>
+		<AvatarCard user={{username: username, id: _id, avatar: avatar}}/>
 		<div className="pl-3 times-font">
 			{content}	
 			<div className="flex items-center mt-1">

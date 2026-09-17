@@ -10,6 +10,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useStore } from "@nanostores/react";
+
 import {
   type User,
   NullUser,
@@ -42,7 +43,7 @@ function FollowersPopup(props: { userId: string }) {
 
   const [refreshKey, setRefreshKey] = useState(0);
 
-  function RenderItem(follower: FollowerPreview) {
+  function RenderItem(follower: FollowerPreview, k: number) {
     return (
       <div className="flex items-center justify-between ">
         <a
@@ -383,7 +384,10 @@ export default function UserProfileBar(props: {}) {
   }, []);
 
   return (
-    <div className="flex items-center gap-2">
+    <div
+      className="
+     flex items-center gap-2"
+    >
       <AvatarCard
         user={user}
         onClickFunc={() => {
@@ -461,39 +465,62 @@ export default function UserProfileBar(props: {}) {
 
 export function UserPosts() {
   const [postIds, setPostIds] = useState<PostThumbnail[]>([]);
+  const [growingArr, setGrowingArr] = useState<PostThumbnail[]>([]);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [skip, setSkip] = useState(0);
 
   useEffect(() => {
     const params = getURLParams();
 
     let userid: string;
+    //data
     api.get(`${API_URL}/username/${params.user}`).then((res) => {
       userid = res.data.user._id;
-      api.get(`${API_URL}/userPosts/${userid}`).then((res) => {
-        setPostIds(
-          res.data.posts.map((m: any) => {
-            return {
-              postId: m._id,
-              imageUrl: m.images[0],
-              likes: m.likes.length,
-            };
-          }),
-        );
-      });
+      api
+        .get(`${API_URL}/userPosts/${userid}`, {
+          params: {
+            skip,
+            limit: 10,
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+        .then((res) => {
+          setPostIds(res.data.posts);
+          setGrowingArr((prev) => [...prev, ...res.data.posts]);
+          setHasMore(res.data.hasMore);
+        });
     });
-  }, []);
+  }, [skip]);
+  function fetchMore() {
+    if (hasMore) {
+      setSkip(skip + 10);
+    }
+  }
 
+  function RenderItem(post: PostThumbnail, k: number) {
+    return (
+      <Post
+        key={k}
+        compact
+        postId={post._id}
+        imageUrl={post.images[0]}
+        author={post.user.username}
+        avatar={post.user.avatar}
+        title={post.title}
+        summary={post.content}
+        likes={post.likes?.length ?? 0}
+      ></Post>
+    );
+  }
   return (
-    <div className="w-fit grid grid-cols-1 md:grid-cols-2 self-center gap-1">
-      {postIds.map((p, id) => {
-        return (
-          <Post
-            key={id}
-            postId={p.postId}
-            imageUrl={p.imageUrl}
-            likes={p.likes}
-          ></Post>
-        );
-      })}
-    </div>
+    <Scroll
+      className="grid grid-cols-3 gap-1 w-full"
+      data={growingArr}
+      fetchMore={fetchMore}
+      hasMore={hasMore}
+      renderItem={RenderItem}
+    ></Scroll>
   );
 }
