@@ -1,0 +1,17 @@
+---
+import { SearchWithAutocomplete } from "../../components/search"
+export const partial = true;
+---
+<SearchWithAutocomplete 
+	collapsible noFilter showSuggestions 
+	placeholder="search recipes"
+	type="Recipes" client:load
+	className="hidden md:block"
+	/>
+<a class="nav-link inline md:hidden" href="/search?o=Recipes">Search</a>
+
+<a class="nav-link" href="/about">About</a>
+<a data-auth-required="false" class="nav-link" href="/login">Login</a>
+<a data-auth-required="false" class="nav-link" href="/signup">Signup</a>
+<a data-auth-required="true" class="nav-link" href="/new-post">New Post</a>
+<a data-auth-required="true" class="nav-link" id="logout">Logout</a>

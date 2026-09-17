@@ -133,7 +133,8 @@ function RenderItem(post: PostThumbnail, k: number) {
     </div>
   );
 }
-function PostsFeed(props: { posts: PostThumbnail[]; title?: string }) {
+
+export function PostsFeed(props: { posts: PostThumbnail[]; title?: string }) {
   const { posts, title } = props;
   return (
     <div className="mt-3 w-full">

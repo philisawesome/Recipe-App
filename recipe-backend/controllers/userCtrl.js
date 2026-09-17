@@ -19,7 +19,7 @@ export async function searchUser(req, res){
         const users= await User.find({
             $or: [{username: regex}, {name:regex}],
         })
-            .select("username name avatar -password")
+            .select("username name avatar")
             .limit(limit)
             .lean();
             

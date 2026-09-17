@@ -176,7 +176,7 @@ export default function NewPost() {
 
   return (
     <div
-      className="border-2 w-lg gap-4
+      className="border-2 w-full md:w-lg gap-4
 		p-4 rounded-lg border-solid 
 		flex flex-col items-center mx-auto"
     >

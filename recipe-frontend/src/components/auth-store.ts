@@ -33,7 +33,7 @@ api.interceptors.response.use(
 
 		if (!error.response && !originalRequest?.url?.endsWith('login')) {
 			errorMsg.set("Didn't get a response from our server")
-			redirect.set('/error')
+			//redirect.set('/error')
 		}
 		
 		return Promise.reject(error);

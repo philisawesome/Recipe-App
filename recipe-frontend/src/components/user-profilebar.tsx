@@ -45,21 +45,22 @@ function FollowersPopup(props: { userId: string }) {
 
   function RenderItem(follower: FollowerPreview, k: number) {
     return (
-      <div className="flex items-center justify-between ">
+      <div className="flex items-center justify-between mb-2">
         <a
-          className="flex items-center gap-2 mb-2"
+          className="flex items-center gap-2"
           href={`/profile?user=${follower.username}`}
         >
           <img
             loading="lazy"
-            className="relative flex size-16 shrink- 0 overflow-hidden rounded-full"
+            className="flex w-9 h-9 object-cover shrink-0 overflow-hidden rounded-full"
+			alt="profile pic"
             src={follower.avatar}
           ></img>
           <h3>{follower.username}</h3>
         </a>
         {$loggedIn && $my_username === follower.username ? null : (
           <Button
-            className="cursor-pointer"
+            className="cursor-pointer z-4"
             variant="outline"
             onClick={() => {
               if (!follower.followed) {
@@ -147,7 +148,7 @@ function FollowersPopup(props: { userId: string }) {
     }
   }
   return (
-    <div>
+    <div className="">
       <Button className="cursor-pointer" onClick={handleClickOpen}>
         {followerCount}
       </Button>
@@ -160,7 +161,7 @@ function FollowersPopup(props: { userId: string }) {
         slotProps={{
           paper: {
             sx: {
-              minWidth: "900px",
+			  width: "100%",
               minHeight: "600px",
               borderRadius: "24px",
               maxWidth: "900px",
@@ -209,21 +210,22 @@ function FollowingPopup(props: { userId: string }) {
 
   function RenderItem(follower: FollowerPreview) {
     return (
-      <div className="flex items-center justify-between ">
+      <div className="flex items-center justify-between mb-2">
         <a
-          className="flex items-center gap-2 mb-2"
+          className="flex items-center gap-2"
           href={`/profile?user=${follower.username}`}
         >
           <img
             loading="lazy"
-            className="relative flex size-16 shrink- 0 overflow-hidden rounded-full"
+            className="flex w-9 h-9 object-cover shrink-0 overflow-hidden rounded-full"
+			alt="profile pic"
             src={follower.avatar}
           ></img>
           <h3>{follower.username}</h3>
         </a>
         {$loggedIn && $my_username === follower.username ? null : (
           <Button
-            className="cursor-pointer"
+            className="cursor-pointer z-4"
             variant="outline"
             onClick={() => {
               if (!follower.followed) {
@@ -325,7 +327,7 @@ function FollowingPopup(props: { userId: string }) {
         slotProps={{
           paper: {
             sx: {
-              minWidth: "900px",
+			  width: "100%",
               minHeight: "600px",
               borderRadius: "24px",
               maxWidth: "900px",

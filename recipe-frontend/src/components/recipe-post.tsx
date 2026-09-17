@@ -63,6 +63,44 @@ const defaultData: PostData = {
   comments: [],
 };
 
+function timeString(postData) {
+    return postData.days && postData.hrs && postData.mins 
+	  ? `${postData.days}d ${postData.hrs}h ${postData.mins}m`
+	  : postData.hrs &&
+		  postData.days &&
+		  !postData.mins
+		? `${postData.days}d ${postData.hrs}h`
+		: postData.days &&
+			!postData.hrs &&
+			!postData.mins
+		  ? `${postData.days}d`
+		  : postData.hrs &&
+			  postData.mins &&
+			  !postData.days
+			? `${postData.hrs}h ${postData.mins}m`
+			: postData.hrs &&
+				!postData.mins &&
+				!postData.days
+			  ? `${postData.hrs}h`
+			  : (postData.mins ? `${postData.mins}m` : undefined)
+}
+
+function RecipeInfo({title, children, isLast}) {
+	return <div className={
+		`py-3 w-full
+		${!isLast && 'border-b md:border-r'} 
+		md:border-b-0
+		border-gray-200 
+		text-center`}>
+    	<div className="text-2xl font-medium">
+			{children || '?'}
+        </div>
+        <div className="text-xs uppercase tracking-wide text-gray-400">
+			{title}
+        </div>
+	</div>
+}
+
 function UseLoading() {
   const [loading, setLoading] = useState(false);
   const egg = (
@@ -289,7 +327,7 @@ export default function RecipePost() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4">
+    <div className="w-full max-w-2xl md:mx-auto px-0 md:px-4">
       <div className="text-center flex flex-col items-center mb-2">
         <h1>
           {loading ? (
@@ -340,45 +378,10 @@ export default function RecipePost() {
         </div>
       </div>
 
-      <div className="flex justify-center py-4">
-        <div className="px-10 border-r border-gray-200 text-center">
-          <div className="text-2xl font-medium">
-            {postData.days != "0" && postData.hrs != "0" && postData.mins != "0"
-              ? `${postData.days}d ${postData.hrs}h ${postData.mins}m`
-              : postData.hrs != "0" &&
-                  postData.days != "0" &&
-                  postData.mins == "0"
-                ? `${postData.days}d ${postData.hrs}h`
-                : postData.days != "0" &&
-                    postData.hrs == "0" &&
-                    postData.mins == "0"
-                  ? `${postData.days}d`
-                  : postData.hrs != "0" &&
-                      postData.mins != "0" &&
-                      postData.days == "0"
-                    ? `${postData.hrs}h ${postData.mins}m`
-                    : postData.hrs != "0" &&
-                        postData.mins == "0" &&
-                        postData.days == "0"
-                      ? `${postData.hrs}h`
-                      : `${postData.mins}m`}
-          </div>
-          <div className="text-xs uppercase tracking-wide text-gray-400">
-            Time
-          </div>
-        </div>
-        <div className="px-10 border-r border-gray-200 text-center">
-          <div className="text-2xl font-medium">{`${postData.serving}`}</div>
-          <div className="text-xs uppercase tracking-wide text-gray-400">
-            Serves
-          </div>
-        </div>
-        <div className="px-10 text-center">
-          <div className="text-2xl font-medium">{postData.difficulty}</div>
-          <div className="text-xs uppercase tracking-wide text-gray-400">
-            Level
-          </div>
-        </div>
+      <div className="flex flex-col md:flex-row justify-center md:py-4 w-full">
+		<RecipeInfo title="Time">{timeString(postData)}</RecipeInfo>
+		<RecipeInfo title="Serves">{postData.serving}</RecipeInfo>
+		<RecipeInfo title="Level" isLast>{postData.difficulty}</RecipeInfo>
       </div>
 
       <div className="flex items-center gap-2 mb-5 border-gray-350 border-y px-4 py-3">

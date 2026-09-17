@@ -8,18 +8,10 @@ import { Searchbar } from "../components/search"
 	.tomato, .onion, .parm {
 		position: absolute;
 		z-index: -1;
-		top: -3rem;
 	}
 
 	.tomato, .onion {
 		visibility: hidden;
-	}
-
-	.tomato {
-		left: -10rem;
-	}
-	.onion, .parm {
-		right: -10rem;
 	}
 
 	.tomato.rolled-in {
@@ -60,6 +52,10 @@ import { Searchbar } from "../components/search"
 		color: var(--green-1);
 	}
 
+	.card-container {
+		width: 100%;
+		position: relative;
+	}
 	.card {
 		width: 100%;
 		background-color: var(--beige-1);
@@ -70,6 +66,24 @@ import { Searchbar } from "../components/search"
 		position: relative;
 		gap: 2rem;
 		transition: transform 0.2s ease;
+	}
+
+	@media (width >= 48rem) {
+		.card-container {
+			width: 90%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 3rem;
+		}
+		.card {
+			width: 25rem;
+		}
+
+	}
+
+	body {
+		overflow-x: hidden;
 	}
 
 	.start-btn {
@@ -101,33 +115,41 @@ import { Searchbar } from "../components/search"
 </style>
 <AppLayout>
 	<div class="flex flex-col items-center justify-center w-full pb-15">
-		<div class="w-[100%] flex flex-col gap-[8rem] relative">
-			<h1 class="-ml-6">a <span class="green">cookbook</span> for the internet</h1>
+		<div class="w-full flex flex-col items-center gap-[8rem] relative">
+			<h1 class="self-start md:-ml-6">
+				a <span class="green">cookbook</span> for the internet
+			</h1>
 
-			<div class="card">
-				<p class="measurement">1 cup</p>
-				<img class="parm" src="/garlicparm.svg" width="270px"/>
-				<h2>
-					<span class="red">create recipes</span> for your tasty creations 
-				</h2>
+			<div class="card-container -mt-14">
+				<div class="card self-start">
+					<p class="measurement">1 cup</p>
+					<h2>
+						<span class="red">create recipes</span> for your tasty creations 
+					</h2>
+				</div>
+				<img class="parm -top-4 right-0 w-[270px]" src="/garlicparm.svg"/>
 			</div>
 
-			<div class="card">
-				<p class="measurement">2 tsp</p>
-				<img class="tomato" src="/tomato.svg" width="200px"/>
-				<h2>
-					<span class="blue">discover new dishes</span> to spice up your kitchen
+			<div class="card-container">
+				<div class="card self-end">
+					<p class="measurement">2 tsp</p>
+					<h2>
+						<span class="blue">discover new dishes</span> to spice up your kitchen
 
-				</h2>
+					</h2>
+				</div>
+				<img class="tomato -left-[5rem]" src="/tomato.svg" width="200px"/>
 			</div>
 
-			<div class="card">
-				<p class="measurement">2 tsp</p>
-				<img class="onion" src="/onion.svg" width="200px"/>
-				<h2>
-					<span class="blue">follow</span> your favorite cooks
+			<div class="card-container">
+				<div class="card self-start">
+					<p class="measurement">2 tsp</p>
+					<h2>
+						<span class="blue">follow</span> your favorite cooks
 
-				</h2>
+					</h2>
+				</div>
+				<img class="onion -right-[4rem]" src="/onion.svg" width="200px"/>
 			</div>
 
 			<a href="signup" class="self-center w-fit start-btn">Start Cooking</a>
