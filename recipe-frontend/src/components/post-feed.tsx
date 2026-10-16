@@ -66,6 +66,56 @@ function PostsDiscover() {
   );
 }
 
+// infinite scroll, takes api URL
+function InfinitePostsFeed(props: {url: string}) {
+  const [posts, setPosts] = useState<PostThumbnail[]>([]);
+  const [growingArr, setGrowingArr] = useState<PostThumbnail[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [skip, setSkip] = useState(0);
+  const {url} = props
+
+  useEffect(() => {
+    api
+      .get(`${API_URL}/${url}`, {
+        params: {
+          skip,
+          limit: 10,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        setPosts(res.data.posts);
+        setGrowingArr((prev) => [...prev, ...res.data.posts]);
+        setHasMore(res.data.hasMore);
+
+        console.log("this is skip " + skip);
+      })
+      .catch(() => setPosts([]));
+  }, [skip, refreshKey]);
+
+  function fetchMore() {
+    if (hasMore) {
+      setSkip(skip + 10);
+    } else {
+      setRefreshKey((k) => k + 1);
+    }
+  }
+
+  return (
+    <div>
+      <Scroll
+        data={growingArr}
+        fetchMore={fetchMore}
+        hasMore={hasMore}
+        renderItem={RenderItem}
+      ></Scroll>
+    </div>
+  );
+}
+
 function UserPostsFeed() {
   const [posts, setPosts] = useState<PostThumbnail[]>([]);
   const [growingArr, setGrowingArr] = useState<PostThumbnail[]>([]);
@@ -93,6 +143,7 @@ function UserPostsFeed() {
       })
       .catch(() => setPosts([]));
   }, [skip, refreshKey]);
+
   function fetchMore() {
     if (hasMore) {
       setSkip(skip + 10);
@@ -100,6 +151,7 @@ function UserPostsFeed() {
       setRefreshKey((k) => k + 1);
     }
   }
+
   return (
     <div>
       <Scroll
@@ -111,6 +163,7 @@ function UserPostsFeed() {
     </div>
   );
 }
+
 function RenderItem(post: PostThumbnail, k: number) {
   return (
     <div className="mt-3 w-full" key={k}>
@@ -164,9 +217,22 @@ export function PostsFeed(props: { posts: PostThumbnail[]; title?: string }) {
   );
 }
 
+  function TabBtn(props: {id: string, title?: string}) {
+	  const {id, title} = props
+	  const $tab = useStore(activeTab);
+	  return <button
+	    type="button"
+		className={`cursor-pointer pb-1 px-8 py-4 ${$tab === id ? "border-b-2 border-[var(--maroon)] text-[var(--maroon)]" : ""}`}
+		onClick={() => activeTab.set(id)}
+	  >
+	    {title || id}
+	  </button>
+  }
+
 export function FeedTabs() {
   const $loggedIn = useStore(loggedIn);
   const $tab = useStore(activeTab);
+
 
   return (
     <div
@@ -175,26 +241,12 @@ export function FeedTabs() {
     >
       {$loggedIn ? (
         <>
-          <button
-            className={`cursor-pointer pb-1 px-8 py-4 ${$tab === "feed" ? "border-b-2 border-[var(--maroon)] text-[var(--maroon)]" : ""}`}
-            onClick={() => activeTab.set("feed")}
-          >
-            Your Feed
-          </button>
-          <button
-            className={`cursor-pointer pb-1 px-8 py-4 ${$tab === "discover" ? "border-b-2 border-[var(--maroon)] text-[var(--maroon)]" : ""}`}
-            onClick={() => activeTab.set("discover")}
-          >
-            Discover
-          </button>
+		  <TabBtn id="discover"/>
+		  <TabBtn id="feed" title="your feed"/>
+		  <TabBtn id="saved"/>
         </>
       ) : (
-        <button
-          className="cursor-pointer px-8 py-4 pb-1 border-b-2 border-[var(--maroon)] text-[var(--maroon)]"
-          onClick={() => activeTab.set("discover")}
-        >
-          Discover
-        </button>
+		  <TabBtn id="discover"/>
       )}
     </div>
   );
@@ -206,7 +258,16 @@ export function FeedContent() {
 
   return (
     <div className="flex flex-col items-center w-full">
-      {$tab === "feed" && $loggedIn ? <UserPostsFeed /> : <PostsDiscover />}
+      {$tab === "feed" && $loggedIn && <InfinitePostsFeed url="posts"/>}
+      {$tab === "saved" && $loggedIn && <InfinitePostsFeed url="getSavedPost"/>}
+      {$tab === "discover" && <PostsDiscover/>}
     </div>
   );
+}
+
+export function SavedPosts() {
+  const $loggedIn = useStore(loggedIn);
+  return $loggedIn && <div className="flex flex-col items-center w-full">
+  	<InfinitePostsFeed url="posts"/>
+  </div>
 }

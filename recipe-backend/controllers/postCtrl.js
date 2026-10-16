@@ -237,19 +237,23 @@ export async function getPost(req, res){
         if (!post) return res.status(404).json({error:'Post does not exist.'});
 
 
-		let liked = false;
+		let authedInfo = { liked: false, saved: false, };
+
 		if (req.user) {
 			// todo do we need to call findby again? can we reuse post from before?
 			const postLikedByUser = await Posts.findById(req.params.id).find({
 				likes: { $elemMatch: { $eq: req.user._id } }
 			})
 			if (postLikedByUser != null && postLikedByUser.length > 0) {
-				liked = true
+				authedInfo.liked = true
 			}
+
+			authedInfo.saved = req.user.saved.some((id) => id.equals(req.params.id));
 
 			post = {
 				...post,
 				comments: commentsWithLikedField(post.comments, req.user),
+				...authedInfo
 			};
 		}
 
@@ -257,7 +261,6 @@ export async function getPost(req, res){
         res.status(200).json({
             post,
             commentsReturned: post.comments?.length || 0,
-			liked: liked,
         });
     }catch(err){
         console.error(err)
@@ -390,7 +393,7 @@ export async function getSavedPost(req,res){
                 limit,
                 hasMore: false , 
                 result: 0 ,
-                savedPosts: []
+                posts: []
             })
         }
 
@@ -402,7 +405,7 @@ export async function getSavedPost(req,res){
 
         const hasMore = savedPosts.length === limit;
 
-        res.json({page , limit , hasMore , result: savedPosts.length, savedPosts})
+        res.json({page , limit , hasMore , result: savedPosts.length, posts: savedPosts})
 
     }catch(err){
         console.error(err);

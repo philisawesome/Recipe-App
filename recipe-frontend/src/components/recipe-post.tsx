@@ -29,6 +29,7 @@ export type PostData = {
   followedAuthor?: boolean;
   image: string;
   liked?: boolean;
+  saved?: boolean;
   title: string;
   body: string;
   instructions: [string];
@@ -50,6 +51,7 @@ const defaultData: PostData = {
   followedAuthor: false,
   image: "",
   liked: false,
+  saved: false,
   title: "",
   body: "",
   instructions: [""],
@@ -198,6 +200,7 @@ function Settings({ deletePost, user, loading }: PostActionProps) {
 
 export default function RecipePost() {
   const [liked, setLiked] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [numLikes, setNumLikes] = useState(0);
   const [likeLoading, setLikeLoading] = useState(false);
 
@@ -252,6 +255,7 @@ export default function RecipePost() {
           },
         })
         .then((res) => {
+		console.log(res.data.post)
           const post = res.data.post;
 
           setPostData(() => ({
@@ -261,6 +265,7 @@ export default function RecipePost() {
             authorId: post.user._id,
             image: post.images,
             likes: post.likes?.length - (res.data.liked ? 1 : 0),
+			saved: post.saved,
             instructions: post.instructions,
             ingredients: post.ingredients,
             summary: post.content,
@@ -272,7 +277,9 @@ export default function RecipePost() {
             comments: [...post.comments],
           }));
 
-          setLiked(res.data.liked);
+
+          setLiked(post.liked);
+          setSaved(post.saved);
           setNumLikes(post.likes?.length || 0);
 
           api.get(`${API_URL}/profile/${post.user._id}`).then((res) => {
@@ -325,6 +332,30 @@ export default function RecipePost() {
       setLoading(false);
     }
   }
+
+function SaveButton() {
+  return <button 
+	type="button" 
+	onClick={async () => {
+		try {
+		  const res = await api.patch(
+			`${API_URL}/${saved ? 'un' : ''}savePost/${postId}`, {},
+			{ headers: { Authorization: "Bearer " + localStorage.getItem("token"), }, },
+		  );
+		  if (res.status === 200) {
+			setSaved(!saved)
+		  }
+		} catch (e) {
+		  console.error(e);
+		}
+	}}>
+	<img
+	  alt="save post"
+	  src={`/${saved ? 'un' : ''}save.svg`}
+	  width="35px"
+	/>
+  </button>
+}
 
   return (
     <div className="w-full max-w-2xl md:mx-auto px-0 md:px-4">
@@ -385,7 +416,9 @@ export default function RecipePost() {
       </div>
 
       <div className="flex items-center gap-2 mb-5 border-gray-350 border-y px-4 py-3">
-        {$loggedIn && (
+        {$loggedIn && <>
+		  <SaveButton postId={postId} saved={saved} setSaved={setSaved}/>
+
           <Toggle
             pressed={liked}
             disabled={likeLoading}
@@ -396,7 +429,7 @@ export default function RecipePost() {
           >
             Like
           </Toggle>
-        )}
+        </>}
         <div>{numLikes} likes</div>
         <div>
           {user.id === postData.authorId ? (
